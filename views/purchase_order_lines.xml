@@ -33,7 +33,7 @@
                     <attribute name="readonly">True</attribute>    
                 </xpath>
                 <field name='price_unit' position="attributes">
-                    <attribute name="invisible">False</attribute>    
+                    <attribute name="invisible">True</attribute>    
                 </field>
                 <field name='price_subtotal' position="attributes">
                     <attribute name="invisible">True</attribute>    

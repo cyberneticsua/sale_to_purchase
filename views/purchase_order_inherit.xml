@@ -24,9 +24,12 @@
                 <xpath expr="//field[@name='order_line']//tree//field[@name='qty_received']" position="attributes">
                     <attribute name="invisible">True</attribute> 
                 </xpath>
-                <xpath expr="//field[@name='order_line']//tree//field[@name='price_unit']" position="attributes">
+                <xpath expr="//field[@name='order_line']//tree//field[@name='company_id']" position="attributes">
                     <attribute name="invisible">True</attribute> 
                 </xpath>
+                <!-- <xpath expr="//field[@name='order_line']//tree//field[@name='price_unit']" position="attributes">
+                    <attribute name="invisible">True</attribute> 
+                </xpath> -->
                 <xpath expr="//field[@name='order_line']//tree//field[@name='taxes_id']" position="attributes">
                     <attribute name="invisible">True</attribute> 
                 </xpath>

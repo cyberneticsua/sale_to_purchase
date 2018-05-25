@@ -27,19 +27,18 @@ class SaleOrderLine (models.Model):
 class PurchaseOrderLine (models.Model):
     _inherit='purchase.order.line'
     real_ready_date=fields.Datetime(
-        string="Реальная дата готовности"
+        string="Реал. дата"
     )
     description = fields.Text(
         string="Детали"
     )
     purchase_status = fields.Selection(
-        [('not_purchased','К заказу'),
-            ('created','Создано заказ'),
+        [   ('created','Создано заказ'),
             ('purchased', 'Заказано'),
             ('ready_for_delivery', 'Готово к отправке'),
             ('delivering', 'В дороге'),
             ('done', 'Доставлено'),],
-        string='Состояние',default='not_purchased')
+        string='Состояние',default='created')
     product_info = fields.Text(string="Комплектация")
 
 class PurchaseOrder (models.Model):
@@ -70,6 +69,21 @@ class SaleToPurchase(models.Model):
 
     purchase_order_count = fields.Integer(compute='_purchase_order_count', string='# of Purchase Order')
 
+    client_type = fields.Selection(
+        [('designer','Дизайнер/архитектор/дизайнер.бюро'),
+            ('home','Себе домой (розничн.клиент)'),
+            ('restaurant', 'Ресторан'),
+            ('cafe', 'Кафе'),
+            ('bar', 'Бар'),
+            ('hotel', 'Гостиница'),
+            ('partner', 'Партнёр (посредник)'),
+            ('distributor', 'Дистрибьютор'),
+            ('eshop', 'Интернет-магазин'),
+            ('retail', 'Розничный магазин'),
+            ('candidate', 'Соискатель'),
+            ('other', 'Другое (указать в коммент.)'),
+            ],
+        string='Тип клиента',default='designer', required='True')
     # @api.multi
     # def action_confirm(self):
     #     super(SaleToPurchase, self).action_confirm()
