@@ -91,7 +91,13 @@ class SaleToPurchase(models.Model):
     #     self.name=self.partner_id.name
     #     return True
 
-
+    @api.model
+    def create(self, vals):
+        partner=self.env['res.partner'].browse(vals.get('partner_id'))
+        vals['name']=partner.name
+        result = super(SaleToPurchase,self).create(vals)
+        return result
+   
     @api.multi
     def _purchase_order_count(self):
         PurchaseOrder = self.env['purchase.order']
