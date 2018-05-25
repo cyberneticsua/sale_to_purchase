@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Додавання фільтрів категорій -->
+        <record id="sale_order_order_line_view" model="ir.ui.view">
+            <field name="name">sale.order.order.line.tab</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']//tree//field[@name='name']" position="after">
+                    <field name="product_info"/>
+                    <field name="purchase_status" string="Состояние" /> 
+                </xpath>
+                <xpath expr="//field[@name='order_line']//form//field[@name='name']" position="after">
+                    <field name="product_info"/>
+                    <field name="purchase_status" string="Состояние" />
+                </xpath>
+                <!-- <xpath expr="//field[@name='order_line']//tree//field[@name='sequence']" position="replace">
+                </xpath> -->
+                <xpath expr="//field[@name='order_line']//tree//field[@name='qty_invoiced']" position="attributes">
+                    <attribute name="invisible">True</attribute> 
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree//field[@name='qty_delivered']" position="attributes">
+                    <attribute name="invisible">True</attribute> 
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree//field[@name='tax_id']" position="attributes">
+                    <attribute name="invisible">True</attribute> 
+                </xpath>
+                <field name="sequence" 
+                position="attributes"
+                >
+                <attribute name="invisible">True</attribute>
+                </field>
+                <field name='order_line' position="attributes">
+                    <attribute name="widget">one2many_checkbox</attribute> 
+                    
+                    <!-- attrs=" { 'readonly': [('isPurchased', '=', True )] }" -->
+                </field>
+                
+            </field>
+        </record>
+        <!-- button_purchase_orders -->
+        <record id="purchase_form_action_from_sale" model="ir.actions.act_window">
+            <field name="name">Purchase Orders</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_mode">tree,kanban,form,pivot,graph,calendar</field>
+            <field name="context">{'search_default_todo':1, 'show_purchase': True}</field>
+            <field name="domain">[('sale_order_id','=',sale_order_id)]</field>
+            <!-- <field name="search_view_id" ref="view_purchase_order_filter"/> -->
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click to create a quotation that will be converted into a purchase order. 
+              </p><p>
+                Use this menu to search within your purchase orders by
+                references, vendor, products, etc. For each purchase order,
+                you can track the related discussion with the vendor, control
+                the products received and control the vendor bills.
+              </p>
+            </field>
+        </record>
+        <record id="act_sale_order_2_purchase_order" model="ir.actions.act_window">
+            <field name="name">RFQs and Purchases</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,graph</field>
+            <field name="context">{'search_default_partner_id': active_id}</field>
+            <!-- <field name="groups_id" eval="[(4, ref('purchase.group_purchase_user'))]"/> -->
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    This vendor has no purchase order. Click to create a new RfQ.
+                </p><p>
+                    The request for quotation is the first step of the purchases flow. Once
+                    converted into a purchase order, you will be able to control the receipt
+                    of the products and the vendor bill.
+                </p>
+            </field>
+        </record>
+        
+        <!-- Додавання кнопки Purchases -->
+        <record id="sale_order_purchase_button" model="ir.ui.view">
+            <field name="name">sale.order.purchase.button</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <button name="action_view_invoice" position="before">
+                    <button class="oe_stat_button" name="%(sale_to_purchase.purchase_form_action_from_sale)d" type="action"
+                         icon="fa-shopping-cart" 
+                         context="{'sale_order_id': id, }"
+                         >
+                         <!-- attrs="{'invisible': [('supplier', '=', False)]}" -->
+                        <field string="Заказы" name="purchase_order_count" widget="statinfo"/>
+                    </button>
+                </button>
+            </field>
+        </record>
+
+        
+    </data>
+</odoo>
+
+
+
+        

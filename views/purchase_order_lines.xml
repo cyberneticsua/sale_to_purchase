@@ -1,0 +1,60 @@
+<odoo>
+	<data>
+        <record id="purchase_order_line_tree" model="ir.actions.act_window">
+            <field name="name">Строки заказа</field> 
+            <field name="res_model">purchase.order.line</field> 
+            <field name="view_type">form</field> 
+            <field name="view_mode">tree,form</field> 
+        </record>
+        <menuitem id="menu_purchase_order_tree" action="purchase_order_line_tree" parent="purchase.menu_purchase_root" /> 
+        <record id="view_purchase_order_line_tree" model="ir.ui.view">
+            <field name="name">purchase.order.line.tree</field>
+            <field name="model">purchase.order.line</field>
+            <field name="inherit_id" ref="purchase.purchase_order_line_tree" />
+            <field name="arch" type="xml">
+                <!-- <tree string="Purchase Order Lines" editable="top" delete="false"> -->
+                <xpath expr="//tree" position="attributes">
+                    <attribute name="editable">top</attribute>
+                </xpath>
+                
+                <xpath expr="//field[@name='order_id']" position="attributes">
+                    <attribute name="readonly">True</attribute>    
+                </xpath>
+                <xpath expr="//field[@name='product_id']" position="attributes">
+                    <attribute name="readonly">True</attribute>    
+                </xpath>
+                <xpath expr="//field[@name='price_unit']" position="attributes">
+                    <attribute name="readonly">True</attribute>    
+                </xpath>
+                <xpath expr="//field[@name='product_qty']" position="attributes">
+                    <attribute name="readonly">True</attribute>    
+                </xpath>
+                <xpath expr="//field[@name='date_planned']" position="attributes">
+                    <attribute name="readonly">True</attribute>    
+                </xpath>
+                <field name='price_unit' position="attributes">
+                    <attribute name="invisible">False</attribute>    
+                </field>
+                <field name='price_subtotal' position="attributes">
+                    <attribute name="invisible">True</attribute>    
+                </field>
+                <field name="name" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </field>
+                
+
+                <xpath expr="//field[@name='date_planned']" position="after">
+                    <field name="real_ready_date"  widget="date"/>
+                    <field name="description"/>
+                    <field name="purchase_status"/>    
+                </xpath>
+                <xpath expr="//field[@name='product_id']" position="after">
+                    <field name="product_info"/>
+                </xpath>
+                
+                
+            </field>
+        </record>
+
+	</data>
+</odoo>

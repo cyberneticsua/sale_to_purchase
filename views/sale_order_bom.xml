@@ -1,0 +1,44 @@
+<odoo>
+	<data>
+		<record model="ir.ui.view" id="sale_order_form_view_bom">
+		    <field name="name">sale.order.view</field>
+		    <field name="model">sale.order</field>
+		    <field name="inherit_id" ref="sale.view_order_form"/>
+		    <field name="arch" type="xml">
+			      <xpath expr="//button[@name='action_purchase_orders']" position="after">
+			             <button name="action_purchase_orders_bom" states="sale" type="object" class="btn-primary" string="Создать заказ BOM"/>
+			      </xpath>
+			</field>
+		</record>
+		
+		<record id="wizard_form_purchase_order_bom" model="ir.ui.view">
+        <field name="name">purchase.order.form.bom.wizard</field>
+        <field name="model">purchase.order.bom.wizard</field>
+        <field name="arch" type="xml">
+               <form string="Заказ у поставщика">
+                    <group>
+                        <group>
+                    		<field name="date_order"/>
+                    	</group>
+                    </group>
+                    <field name="order_line">
+                                <tree string="Purchase Order Lines" editable="bottom">
+                                    <field name="product_id" required="True"/>
+                                    <field name="name" invisible="True" />
+                                    <field name="partner_id" domain="[('supplier','=',True)]"/>
+                                    <field name="product_qty" required="True"/>
+                                    <field name="product_uom" required="True" invisible="True"/>
+                                    <field name="price_unit" required="True"/>
+                                    <field name="price_subtotal" widget="monetary"/>
+                                </tree>
+                     </field>
+                    <footer>
+                        <button string="Создать заказ BOM" type="object" name="generate_purchase_order_bom" class="btn-primary"/>или
+                        <button name="cancel" string="Отмена" special="cancel" class="oe_link"/>
+                   
+                    </footer>
+                </form>
+        </field>
+        </record>
+	</data>
+</odoo>

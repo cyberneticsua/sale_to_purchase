@@ -1,0 +1,53 @@
+<odoo>
+	<data>
+		<record model="ir.ui.view" id="sale_order_form_view">
+		    <field name="name">sale.order.view</field>
+		    <field name="model">sale.order</field>
+		    <field name="inherit_id" ref="sale.view_order_form"/>
+		    <field name="arch" type="xml">
+			    <xpath expr="//button[@name='action_cancel']" position="after">
+			            <button name="action_purchase_orders" states="sale" type="object" class="btn-primary" string="Создать заказ"/>
+			    </xpath>
+                <xpath expr="//field[@name='order_line']//tree//field[@name='name']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+			</field>
+		</record>
+		
+		<record id="wizard_form_purchase_order" model="ir.ui.view">
+        <field name="name">purchase.order.form.wizard</field>
+        <field name="model">purchase.order.wizard</field>
+        <field name="arch" type="xml">
+               <form string="Заказ у поставщика">
+                    <group>
+                    	<group>
+                    		<field name="partner_id" domain="[('supplier','=',True)]"/>
+                    		<field name="date_order"/>
+                    	</group>
+                    	<!-- <group>
+                    		<field name="company_id"/>
+                    		<field name="picking_type_id"/>
+                    	</group> -->
+                    </group>
+                    <field name="order_line">
+                                <tree string="Purchase Order Lines" editable="bottom">
+                                    <field name="product_id" context="{'partner_id': parent.partner_id}" required="True"/>
+                                    <field name="name" required="True" invisible="True"/>
+                                    <field name="product_info"/>
+                                    <field name="product_qty" required="True"/>
+                                    <field name="product_uom" required="True" invisible="True"/>
+                                    <field name="price_unit" required="True"/>
+                                    <field name="price_subtotal" widget="monetary"/>
+                                    <field name="sale_order_line_id" invisible="True"/>
+                                </tree>
+                     </field>
+                    <footer>
+                        <button string="Создать заказ" type="object" name="generate_purchase_order" class="btn-primary"/>или
+                        <button name="cancel" string="Отмена" special="cancel" class="oe_link"/>
+                   
+                    </footer>
+                </form>
+        </field>
+        </record>
+	</data>
+</odoo>
