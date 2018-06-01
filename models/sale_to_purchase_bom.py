@@ -71,13 +71,16 @@ class PurchaseOrderBOMWizard(models.TransientModel):
             
             for i in self.order_line:
                 if i.partner_id.id == v:
+                    data= self.env['sale.order.line'].search([('id', '=', i.sale_order_line_id)])
                     line_ids=orderline_pooler.create({'product_id':i.product_id.id,
                                                 'name':i.name,
                                                 'product_qty':i.product_qty,
                                                 'price_unit':i.price_unit,
                                                 'product_uom':1,
                                                 'order_id':pur_id.id,
-                                                'date_planned':self.date_order
+                                                'date_planned':self.date_order,
+                                                #додавання посилання на sale order
+                                                'sale_order_line_id':data.id,
                                                 })
             pur_id.button_confirm()
     

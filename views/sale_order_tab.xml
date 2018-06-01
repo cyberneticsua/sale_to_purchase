@@ -98,6 +98,25 @@
             </field>
         </record>
 
+        <record model="ir.ui.view" id="sale_order_status_field">
+		    <field name="name">sale.order.status.field</field>
+		    <field name="model">sale.order</field>
+		    <field name="inherit_id" ref="sale.view_order_tree"/>
+            <field name="sequence"> 16</field>
+		    <field name="arch" type="xml">
+			    <xpath expr="//tree//field[@name='state']" position="after">
+                    <field name="sale_order_status_field" invisible="True" />
+                </xpath>
+
+                <xpath expr="//tree" position="attributes">
+                    <attribute name="decoration-info">sale_order_status_field==True</attribute>
+                </xpath>
+                <!-- <xpath expr="//tree" position="attributes">
+                    <attribute name="colors">red:sale_order_status_field==True</attribute>
+                </xpath> -->
+			</field>
+		</record>
+        
         
     </data>
 </odoo>

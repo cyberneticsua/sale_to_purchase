@@ -66,7 +66,7 @@ class SaleToPurchase(models.Model):
         comodel_name='purchase.order',
         inverse_name='sale_order_id',
     )
-
+    
     purchase_order_count = fields.Integer(compute='_purchase_order_count', string='# of Purchase Order')
 
     client_type = fields.Selection(
@@ -84,6 +84,9 @@ class SaleToPurchase(models.Model):
             ('other', 'Другое (указать в коммент.)'),
             ],
         string='Тип клиента',default='designer', required='True')
+   
+   
+   
     # @api.multi
     # def action_confirm(self):
     #     super(SaleToPurchase, self).action_confirm()
@@ -153,7 +156,12 @@ class SaleToPurchase(models.Model):
         res['view_mode'] = 'tree,form'
 
         return res
-   
+    
+    #статус замовлення для відображення в списку
+    sale_order_status_field = fields.Boolean("Заказ выполнен", 
+    default=False,
+    )
+
          
 class PurchaseOrderWizard(models.TransientModel):
     _name= 'purchase.order.wizard'
@@ -193,6 +201,8 @@ class PurchaseOrderWizard(models.TransientModel):
 #                                 'order_line':[(6,0,[line_ids])]
                                 })
         for i in self.order_line:
+            data= self.env['sale.order.line'].search([('id', '=', i.sale_order_line_id)])
+            
             line_ids=orderline_pooler.create({'product_id':i.product_id.id,
                                                 'name':i.name,
                                                 'product_qty':i.product_qty,
@@ -201,9 +211,12 @@ class PurchaseOrderWizard(models.TransientModel):
                                                 'price_unit':i.price_unit,
                                                 'product_uom':1,
                                                 'order_id':pur_id.id,
-                                                'date_planned':self.date_order
+                                                'date_planned':self.date_order,
+                                                #додано посилання на sale.order.line
+                                                'sale_order_line_id':data.id,
                                                 })
-            data= self.env['sale.order.line'].search([('id', '=', i.sale_order_line_id)])
+            
+            # data= self.env['sale.order.line'].search([('id', '=', i.sale_order_line_id.id)])
             data.sudo().write ({'purchase_status':'created'})
                                                 
         pur_id.button_confirm()
