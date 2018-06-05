@@ -76,7 +76,7 @@ class PurchaseOrderBOMWizard(models.TransientModel):
                                                 'name':i.name,
                                                 'product_qty':i.product_qty,
                                                 'price_unit':i.price_unit,
-                                                'product_uom':1,
+                                                'product_uom':i.product_uom.id,
                                                 'order_id':pur_id.id,
                                                 'date_planned':self.date_order,
                                                 #додавання посилання на sale order
@@ -116,7 +116,7 @@ class PurchaseOrderBOMWizard(models.TransientModel):
                                     'name':bom_item.product_id.name,
                                     'product_qty':bom_item.product_qty*item.product_uom_qty,
                                     'price_unit':0.0,
-                                    # 'product_uom':bom_item.product_uom.id,
+                                    'product_uom':bom_item.product_uom.id,
                                     # 'price_subtotal':bom_item.price_unit*bom_item.product_uom_qty,
                                     ###################################
                                     'sale_order_line_id':item.id,

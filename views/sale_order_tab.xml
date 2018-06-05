@@ -109,7 +109,7 @@
                 </xpath>
 
                 <xpath expr="//tree" position="attributes">
-                    <attribute name="decoration-info">sale_order_status_field==True</attribute>
+                    <attribute name="decoration-success">sale_order_status_field==True</attribute>
                 </xpath>
                 <!-- <xpath expr="//tree" position="attributes">
                     <attribute name="colors">red:sale_order_status_field==True</attribute>

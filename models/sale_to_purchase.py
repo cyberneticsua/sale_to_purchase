@@ -209,7 +209,7 @@ class PurchaseOrderWizard(models.TransientModel):
                                                 'product_info':i.product_info,
                                                 # 'price_unit':i.price_unit,
                                                 'price_unit':i.price_unit,
-                                                'product_uom':1,
+                                                'product_uom':i.product_uom.id,
                                                 'order_id':pur_id.id,
                                                 'date_planned':self.date_order,
                                                 #додано посилання на sale.order.line
