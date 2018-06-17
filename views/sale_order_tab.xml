@@ -12,11 +12,13 @@
                 </xpath>
                 <xpath expr="//field[@name='order_line']//tree//field[@name='name']" position="after">
                     <field name="product_info"/>
-                    <field name="purchase_status" string="Состояние" /> 
+                    <field name="purchase_status" string="Состояние" attrs="{'invisible': [('parent.state', 'not in', ['sale', 'done'])]}"/> 
+                    <!-- <field name="purchase_status" string="Состояние" attrs="{'invisible': [('write_date', '=', None)]}"/>  -->
                 </xpath>
                 <xpath expr="//field[@name='order_line']//form//field[@name='name']" position="after">
                     <field name="product_info"/>
-                    <field name="purchase_status" string="Состояние" />
+                    <field name="purchase_status" string="Состояние" attrs="{'invisible': [('parent.state', 'not in', ['sale', 'done'])]}" />
+                    <!-- <field name="purchase_status" string="Состояние" attrs="{'invisible': [('write_date', '=', None)]}"/>  -->
                 </xpath>
                 <!-- <xpath expr="//field[@name='order_line']//tree//field[@name='sequence']" position="replace">
                 </xpath> -->
@@ -95,6 +97,9 @@
                         <field string="Заказы" name="purchase_order_count" widget="statinfo"/>
                     </button>
                 </button>
+                <field name='payment_term_id' position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </field>    
             </field>
         </record>
 

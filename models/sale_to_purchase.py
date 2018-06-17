@@ -289,4 +289,4 @@ class PurchaseOrderLineWizard(models.TransientModel):
 
 class ProductTemplateInfo(models.Model):
     _inherit="product.template"
-    base_params_info=fields.Text(string="Базовая комплектация")
+    base_params_info=fields.Text(string="Комплектация")

@@ -116,8 +116,8 @@ class PurchaseOrderBOMWizard(models.TransientModel):
                                     'name':bom_item.product_id.name,
                                     'product_qty':bom_item.product_qty*item.product_uom_qty,
                                     'price_unit':0.0,
-                                    'product_uom':bom_item.product_uom.id,
-                                    # 'price_subtotal':bom_item.price_unit*bom_item.product_uom_qty,
+                                    'product_uom':bom_item.product_uom_id.id,
+                                    'price_subtotal':0.0*bom_item.product_qty*item.product_uom_qty,
                                     ###################################
                                     'sale_order_line_id':item.id,
                                    }))

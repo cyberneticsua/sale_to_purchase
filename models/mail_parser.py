@@ -20,14 +20,38 @@ class MyMailParser(models.Model):
         description=msg_dict.get('body')
         #parsing
         # _dict=_parse_description(description)
-        fields=['Name','Email','Phone']
+        fields=['Name:','Phone:','UTM source','UTM medium','UTM campaign']
         _dict={}
 		# description=description.lower()
         for field in fields:
-            index = description.find(field)
+            index = s.find(field)
             if (index>0):
-                _dict[field]=description[index:index+10]
+                last_index=s.find("<",index)
+                _dict[field]=s[index+len(field):last_index]
+        index = s.find('Email:')
+        index=s.find("mailto:",index)
+        if (index>0):
+            last_index=s.find("\"",index)
+            _dict['Email']=s[index+len("mailto:"):last_index]
+
+        if 'UTM campaign' in _dict:
+            record=self.env['utm_campaign'].search([('name','=',_dict['UTM campaign'])])
+            if not(record):
+                record=self.env['utm_campaign'].create({'name':_dict['UTM campaign']})
+            defaults['campaign_id']=record.id
         
+        if 'UTM medium' in _dict:
+            record=self.env['utm_medium'].search([('name','=',_dict['UTM medium'])])
+            if not(record):
+                record=self.env['utm_medium'].create({'name':_dict['UTM medium']})
+            defaults['medium_id']=record.id
+
+        if 'UTM source' in _dict:
+            record=self.env['utm_source'].search([('name','=',_dict['UTM source'])])
+            if not(record):
+                record=self.env['utm_source'].create({'name':_dict['UTM source']})
+            defaults['source_id']=record.id
+
         if custom_values is None:
             custom_values = {}
         defaults = {
