@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        
         <record id="view_crm_lead_form" model="ir.ui.view">
             <field name="name">CRM Lead customization</field>
             <field name="model">crm.lead</field>
@@ -12,6 +11,16 @@
                 <xpath expr="//field[@name='mobile']" position="after">
                     <field name="client_lang" />
                 </xpath> 
+            </field>
+        </record>
+        <record id="view_crm_lead_convert_button" model="ir.ui.view">
+            <field name="name">CRM Lead button convert change</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_case_form_view_leads" />
+            <field name="arch" type="xml">
+                <button name="%(crm.action_crm_lead2opportunity_partner)d" position="replace">
+                    <button string="Создать сделку" name="sale_lead2opportunity_waldberg" type="object" class="oe_highlight" />
+                </button>
             </field>
         </record>
     </data>
