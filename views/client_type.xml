@@ -10,14 +10,6 @@
         </field>
     </record>
 
-    <!-- <act_window
-        id="action_open_client_type"
-        name="Client Type"
-        res_model="res.partner"
-        view_type="form"
-        view_mode="kanban,form,tree"
-        domain="[('client_type_id', '=', active_id)]"/> -->
-
     <act_window
         id="action_open_single_client_type"
         name="Client type"
@@ -107,31 +99,6 @@
         </field>
     </record>
 
-    <!-- <record id="view_product_template_search_brand" model="ir.ui.view">
-        <field name="name">product.template.search.brand</field>
-        <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_search_view"/>
-        <field name="arch" type="xml">
-            <field name="name" position="after">
-                <field name="product_brand_id"/>
-                <filter string="Brand" name="groupby_brand" domain="[]"
-                        context="{'group_by' : 'product_brand_id'}"/>
-                <separator/>
-            </field>
-        </field>
-    </record> -->
-
-    <!-- <record id="res_partner_form_client_type_add" model="ir.ui.view">
-        <field name="name">res.partner.client.type.form</field>
-        <field name="model">res.partner</field>
-        <field name="inherit_id" ref="base.view_partner_form" />
-        <field name="arch" type="xml">
-            <field name="lang" position="after">
-                <field name="client_type_id" placeholder="Тип лида/клиента"/><div/>
-            </field>
-        </field>
-    </record> -->
-
     <record id="crm_lead_form_client_type_add" model="ir.ui.view">
         <field name="name">CRM lead client type form</field>
         <field name="model">crm.lead</field>
@@ -157,28 +124,6 @@
             </field>
         </field>
     </record>
-<!-- 
-    <record id="view_product_template_tree_brand" model="ir.ui.view">
-        <field name="name">res partner tree view: add type</field>
-        <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_tree_view" />
-        <field name="arch" type="xml">
-            <field name="name" position="after">
-                <field name="product_brand_id"/>
-            </field>
-        </field>
-    </record> -->
-
-    <!-- <record id="view_product_variant_tree_brand" model="ir.ui.view">
-        <field name="name">product variant tree view: add brand</field>
-        <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_product_tree_view" />
-        <field name="arch" type="xml">
-            <field name="name" position="after">
-                <field name="product_brand_id"/>
-            </field>
-        </field>
-    </record> -->
 
     <record model="ir.actions.act_window" id="action_client_type">
         <field name="name">Client type</field>
