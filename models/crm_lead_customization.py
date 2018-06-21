@@ -1,6 +1,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import Warning
 from odoo.exceptions import UserError
+from datetime import date, datetime, timedelta
 
 @api.model
 def _lang_get(self):
@@ -67,8 +68,28 @@ class CrmLeadFields (models.Model):
         leads = self.env['crm.lead'].browse(self.id)
         values.update({'lead_ids': leads.ids, 'user_ids': [self.user_id.id]})
         self._convert_opportunity(values)
-
+        self._create_action_for_lead()
         return leads[0].redirect_opportunity_view()
+
+    #generate activity for lead
+    def _create_action_for_lead(self):
+        my_activity = self.env['mail.activity.type'].search([('name', '=', 'Call')])
+        data1 = self.env['ir.model'].search([('model', '=', 'crm.lead')])
+        t= date.today()
+        date_deadline = (datetime.now() + timedelta(days=my_activity.days))
+        if date_deadline.weekday()==5:
+            date_deadline= date_deadline+ timedelta(days=2)
+        if date_deadline.weekday()==6:
+            date_deadline= date_deadline+ timedelta(days=1)
+        act_vals={
+                    'activity_type_id':my_activity.id,
+                    'date_deadline':date_deadline.strftime('%Y-%m-%d'),
+                    'res_id':self.id,
+                    'res_model_id':data1.id,
+                }
+        if self.user_id.id:
+            act_vals['user_id']=self.user_id.id
+        my_activity = self.env['mail.activity'].create(act_vals)
 
     def _create_partner(self, lead_id, action, partner_id):
         """ Create partner based on action.
@@ -102,6 +123,10 @@ class CrmLeadFields (models.Model):
 
         if lead.email_from:  # search through the existing partners based on the lead's email
             partner = Partner.search([('email', '=', lead.email_from)], limit=1)
+            return partner.id
+        
+        if lead.phone:  # search through the existing partners based on the lead's phone
+            partner = Partner.search([('phone', '=', lead.phone)], limit=1)
             return partner.id
 
         if lead.partner_name:  # search through the existing partners based on the lead's partner or contact name

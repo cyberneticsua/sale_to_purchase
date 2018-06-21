@@ -16,7 +16,7 @@ class SaleOrderLine (models.Model):
             ('done', 'Доставлено'),],
         string='Состояние',default='not_purchased')
     
-    product_info = fields.Text(string="Базовая комплектация")
+    product_info = fields.Text(string="Комплектация")
     
     @api.onchange('product_id')
     def _get_product_info(self):
@@ -69,21 +69,21 @@ class SaleToPurchase(models.Model):
     
     purchase_order_count = fields.Integer(compute='_purchase_order_count', string='# of Purchase Order')
 
-    client_type = fields.Selection(
-        [('designer','Дизайнер/архитектор/дизайнер.бюро'),
-            ('home','Себе домой (розничн.клиент)'),
-            ('restaurant', 'Ресторан'),
-            ('cafe', 'Кафе'),
-            ('bar', 'Бар'),
-            ('hotel', 'Гостиница'),
-            ('partner', 'Партнёр (посредник)'),
-            ('distributor', 'Дистрибьютор'),
-            ('eshop', 'Интернет-магазин'),
-            ('retail', 'Розничный магазин'),
-            ('candidate', 'Соискатель'),
-            ('other', 'Другое (указать в коммент.)'),
-            ],
-        string='Тип клиента',default='designer', required='True')
+    # client_type = fields.Selection(
+    #     [('designer','Дизайнер/архитектор/дизайнер.бюро'),
+    #         ('home','Себе домой (розничн.клиент)'),
+    #         ('restaurant', 'Ресторан'),
+    #         ('cafe', 'Кафе'),
+    #         ('bar', 'Бар'),
+    #         ('hotel', 'Гостиница'),
+    #         ('partner', 'Партнёр (посредник)'),
+    #         ('distributor', 'Дистрибьютор'),
+    #         ('eshop', 'Интернет-магазин'),
+    #         ('retail', 'Розничный магазин'),
+    #         ('candidate', 'Соискатель'),
+    #         ('other', 'Другое (указать в коммент.)'),
+    #         ],
+    #     string='Тип клиента',default='designer', required='True')
    
    
    
@@ -278,7 +278,7 @@ class PurchaseOrderLineWizard(models.TransientModel):
     name = fields.Text(string='Описание')
     wizard_order_id=fields.Many2one('purchase.order.wizard')
     product_id = fields.Many2one('product.product', string='Продукция')
-    product_info=fields.Text(string='Базовая комплектация')
+    product_info=fields.Text(string='Комплектация')
     product_qty = fields.Float(string='Кол-во', digits=dp.get_precision('Product Unit of Measure'))
     price_unit = fields.Float(string='Цена', digits=dp.get_precision('Product Price'))
     product_uom = fields.Many2one('product.uom', string='Ед.измер.')
