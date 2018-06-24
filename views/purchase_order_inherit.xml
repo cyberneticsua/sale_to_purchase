@@ -52,6 +52,12 @@
                 <field name="invoice_status" position="attributes">
                     <attribute name="invisible">True</attribute>
                 </field>
+                <field name="company_id" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </field>
+                <xpath expr="//field[@name='amount_total']" position="after">
+                    <field name="prepayment" sum="Total prepayment" widget="monetary"/>
+                </xpath>
             </field>
         </record>
         

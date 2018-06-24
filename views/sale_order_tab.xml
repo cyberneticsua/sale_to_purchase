@@ -102,7 +102,13 @@
                 </button>
                 <field name='payment_term_id' position="attributes">
                     <attribute name="invisible">True</attribute>
-                </field>    
+                </field>
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="sale_order_invoiced_status_wald" attrs="{'invisible': [('parent.state', 'not in', ['sale', 'done'])]}"/>
+                </xpath>    
+                <xpath expr="//field[@name='confirmation_date']" position="after">
+                    <field name="invoiced_sum_wald"/>
+                </xpath>    
             </field>
         </record>
 

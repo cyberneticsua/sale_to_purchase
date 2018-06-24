@@ -129,12 +129,12 @@ class CrmLeadFields (models.Model):
             partner = Partner.search([('phone', '=', lead.phone)], limit=1)
             return partner.id
 
-        if lead.partner_name:  # search through the existing partners based on the lead's partner or contact name
-            partner = Partner.search([('name', 'ilike', '%' + lead.partner_name + '%')], limit=1)
-            return partner.id
+        # if lead.partner_name:  # search through the existing partners based on the lead's partner or contact name
+        #     partner = Partner.search([('name', 'ilike', '%' + lead.partner_name + '%')], limit=1)
+        #     return partner.id
 
-        if lead.contact_name:
-            partner = Partner.search([('name', 'ilike', '%' + lead.contact_name+'%')], limit=1)
-            return partner.id
+        # if lead.contact_name:
+        #     partner = Partner.search([('name', 'ilike', '%' + lead.contact_name+'%')], limit=1)
+        #     return partner.id
 
         return False

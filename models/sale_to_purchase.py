@@ -3,6 +3,7 @@ import odoo.addons.decimal_precision as dp
 from odoo.exceptions import Warning
 from odoo.exceptions import UserError
 from odoo.exceptions import ValidationError
+from datetime import date, datetime, timedelta
 
 class SaleOrderLine (models.Model):
     _inherit="sale.order.line"    
@@ -45,7 +46,7 @@ class PurchaseOrder (models.Model):
     _inherit='purchase.order'
 
     # 24.04.2018
-    prepayment = fields.Char(
+    prepayment = fields.Monetary(
         string='Предолата',
     )
 
@@ -68,6 +69,40 @@ class SaleToPurchase(models.Model):
     )
     
     purchase_order_count = fields.Integer(compute='_purchase_order_count', string='# of Purchase Order')
+
+    invoiced_sum_wald=fields.Monetary(string='Оплачено')
+
+    sale_order_invoiced_status_wald=fields.Selection(
+    [
+        ('in_process','В работе'),
+        ('to_production','В производство'),],
+        string='Статус оплаты',default='in_process')
+
+    @api.multi
+    def write(self,vals):
+        super(SaleToPurchase,self).write(vals)
+        values={}
+        values['order_id']=self.id
+        values['user_id']=self.user_id.id
+        if self.env.context.get('MyModelLoopBreaker'): 
+            return 
+        self = self.with_context(MyModelLoopBreaker=True) 
+        self._create_activity_for_manager(values)
+
+    def _create_activity_for_manager(self,values):
+        if (self.sale_order_invoiced_status_wald=='to_production'):
+            my_activity = self.env['mail.activity.type'].search([('name', '=', 'Обработать заказ')])
+            data1 = self.env['ir.model'].search([('model', '=', 'sale.order')])
+            date_deadline = (datetime.now() + timedelta(days=my_activity.days))
+            act_vals={
+                        'activity_type_id':my_activity.id,
+                        'date_deadline':date_deadline.strftime('%Y-%m-%d'),
+                        'res_id':values['order_id'],
+                        'res_model_id':data1.id,
+                    }
+            if values['user_id']:
+                act_vals['user_id']=values['user_id']
+            my_activity = self.env['mail.activity'].create(act_vals)
 
     # client_type = fields.Selection(
     #     [('designer','Дизайнер/архитектор/дизайнер.бюро'),
@@ -94,12 +129,12 @@ class SaleToPurchase(models.Model):
     #     self.name=self.partner_id.name
     #     return True
 
-    @api.model
-    def create(self, vals):
-        partner=self.env['res.partner'].browse(vals.get('partner_id'))
-        vals['name']=partner.name
-        result = super(SaleToPurchase,self).create(vals)
-        return result
+    # @api.model
+    # def create(self, vals):
+    #     partner=self.env['res.partner'].browse(vals.get('partner_id'))
+    #     vals['name']=partner.name
+    #     result = super(SaleToPurchase,self).create(vals)
+    #     return result
    
     @api.multi
     def _purchase_order_count(self):
