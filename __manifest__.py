@@ -14,6 +14,7 @@
              'views/purchase_order_inherit.xml',
              'views/product_inherit.xml',
              'views/lead_modification.xml',
+             'views/activities_list.xml',
              ],
     'images': [],
     'license': 'LGPL-3',

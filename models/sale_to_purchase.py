@@ -68,6 +68,8 @@ class SaleToPurchase(models.Model):
         inverse_name='sale_order_id',
     )
     
+    
+
     purchase_order_count = fields.Integer(compute='_purchase_order_count', string='# of Purchase Order')
 
     invoiced_sum_wald=fields.Monetary(string='Оплачено')
