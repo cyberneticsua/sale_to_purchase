@@ -68,7 +68,7 @@ class SaleToPurchase(models.Model):
         inverse_name='sale_order_id',
     )
     
-    
+
 
     purchase_order_count = fields.Integer(compute='_purchase_order_count', string='# of Purchase Order')
 
@@ -106,24 +106,6 @@ class SaleToPurchase(models.Model):
                 act_vals['user_id']=values['user_id']
             my_activity = self.env['mail.activity'].create(act_vals)
 
-    # client_type = fields.Selection(
-    #     [('designer','Дизайнер/архитектор/дизайнер.бюро'),
-    #         ('home','Себе домой (розничн.клиент)'),
-    #         ('restaurant', 'Ресторан'),
-    #         ('cafe', 'Кафе'),
-    #         ('bar', 'Бар'),
-    #         ('hotel', 'Гостиница'),
-    #         ('partner', 'Партнёр (посредник)'),
-    #         ('distributor', 'Дистрибьютор'),
-    #         ('eshop', 'Интернет-магазин'),
-    #         ('retail', 'Розничный магазин'),
-    #         ('candidate', 'Соискатель'),
-    #         ('other', 'Другое (указать в коммент.)'),
-    #         ],
-    #     string='Тип клиента',default='designer', required='True')
-   
-   
-   
     # @api.multi
     # def action_confirm(self):
     #     super(SaleToPurchase, self).action_confirm()
