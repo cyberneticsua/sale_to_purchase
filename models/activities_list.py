@@ -61,8 +61,8 @@ class DuplicatesLead(models.Model):
                 ('id', 'in', child_ids.ids),
             ]
         action['name']=view_title
-        tree_view_id = self.env.ref('crm.crm_case_tree_view_oppor').id
-        form_view_id = self.env.ref('crm.crm_case_form_view_oppor').id
+        tree_view_id = self.env.ref('crm.crm_case_tree_view_leads').id
+        form_view_id = self.env.ref('crm.crm_case_form_view_leads').id
         kanb_view_id = self.env.ref('crm.crm_case_kanban_view_leads').id
         action['views'] = [
                 [tree_view_id, 'tree'],

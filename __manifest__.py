@@ -6,7 +6,7 @@
     'category': 'Sales Management',
     'author': 'Igor Vinnychuk',
     'website': '',
-    "depends" : ['sale','purchase','crm','mail','base','sales_team'],
+    "depends" : ['sale','purchase','crm','mail','base','sales_team','hr_expense'],
     'data': ['views/sale_order_tab.xml',
              'views/sale_order_inherit.xml',
              'views/sale_order_bom.xml',

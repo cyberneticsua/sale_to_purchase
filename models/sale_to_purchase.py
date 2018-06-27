@@ -68,7 +68,10 @@ class SaleToPurchase(models.Model):
         inverse_name='sale_order_id',
     )
     
-
+    sale_order_to_production_task_created= fields.Boolean(
+        string='Task for manager was created',default=False,
+    )
+    
 
     purchase_order_count = fields.Integer(compute='_purchase_order_count', string='# of Purchase Order')
 
@@ -89,7 +92,9 @@ class SaleToPurchase(models.Model):
         if self.env.context.get('MyModelLoopBreaker'): 
             return 
         self = self.with_context(MyModelLoopBreaker=True) 
-        self._create_activity_for_manager(values)
+        if not(self.sale_order_to_production_task_created):
+            self.sale_order_to_production_task_created=True
+            self._create_activity_for_manager(values)
 
     def _create_activity_for_manager(self,values):
         if (self.sale_order_invoiced_status_wald=='to_production'):
