@@ -17,6 +17,28 @@ class CrmLeadFields (models.Model):
                             help="If the selected language is loaded in the system, all documents related to "
                                  "this contact will be printed in this language. If not, it will be English.")
 
+    
+    #метод, що призначає оперетора Call Center при створенні ліда
+    @api.multi
+    def write(self,vals):
+        super(CrmLeadFields,self).write(vals)
+        if self.env.context.get('SaleToPurcahseLoopBreaker'): 
+            return 
+        self = self.with_context(SaleToPurcahseLoopBreaker=True) 
+        if not(self.user_id) and (self.type=='lead'):
+            my_team = self.env['crm.team'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_call_center_team'))])
+            self.env['crm.team'].custom_assign_leads_to_salesman(team_id=my_team.id,lead_id=self.id)
+
+    @api.model
+    def create(self, vals):
+        ff = super(CrmLeadFields,self).create(vals)
+        if not ff.user_id:
+            my_team = self.env['crm.team'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_call_center_team'))])
+            self.env['crm.team'].custom_assign_leads_to_salesman(team_id=my_team.id,lead_id=ff.id)
+            ff._create_action_for_lead()
+        return ff
+
+
     @api.model
     def _get_duplicated_leads(self, partner_id, email, include_lost=False):
         """ Search for opportunities that have the same partner and that arent done or cancelled """
