@@ -21,3 +21,22 @@ class ResConfigSettings(models.TransientModel):
     def set_values(self):
         super(ResConfigSettings, self).set_values()
         self.env['ir.config_parameter'].sudo().set_param('sale_to_purchase.my_base_sales_team', self.my_base_sales_team)
+
+class ResConfigSettings(models.TransientModel):
+    _inherit = 'res.config.settings'
+
+    my_base_call_center_team = fields.Char(
+        string="Название команди Call Center",
+        help="Указание команди Call Center для поиска менеджера при конвертации создании лида")
+    
+    def get_values(self):
+        res = super(ResConfigSettings, self).get_values()
+        res.update(
+            my_base_call_center_team=self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_call_center_team')
+        )
+        return res
+
+    def set_values(self):
+        super(ResConfigSettings, self).set_values()
+        self.env['ir.config_parameter'].sudo().set_param('sale_to_purchase.my_base_call_center_team', self.my_base_call_center_team)
+

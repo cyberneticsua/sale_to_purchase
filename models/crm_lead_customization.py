@@ -34,14 +34,12 @@ class CrmLeadFields (models.Model):
                 lead.id, vals.get('action'), vals.get('partner_id') or lead.partner_id.id)
             res = lead.convert_opportunity(partner_id, [], False)
         
-        
-
         leads_to_allocate = leads
         if self._context.get('no_force_assignation'):
             leads_to_allocate = leads_to_allocate.filtered(lambda lead: not lead.user_id)
         
         # Assignment of opportunities to manager
-        my_team = self.env['crm.team'].search([('name', '=', 'Europe')])
+        my_team = self.env['crm.team'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_sales_team'))])
         
         self.env['crm.team'].custom_assign_leads_to_salesman(team_id=my_team.id,lead_id=self.id)
 

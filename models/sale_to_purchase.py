@@ -92,24 +92,23 @@ class SaleToPurchase(models.Model):
         if self.env.context.get('MyModelLoopBreaker'): 
             return 
         self = self.with_context(MyModelLoopBreaker=True) 
-        if not(self.sale_order_to_production_task_created):
+        if not(self.sale_order_to_production_task_created) and (self.sale_order_invoiced_status_wald=='to_production'):
             self.sale_order_to_production_task_created=True
             self._create_activity_for_manager(values)
 
     def _create_activity_for_manager(self,values):
-        if (self.sale_order_invoiced_status_wald=='to_production'):
-            my_activity = self.env['mail.activity.type'].search([('name', '=', 'Обработать заказ')])
-            data1 = self.env['ir.model'].search([('model', '=', 'sale.order')])
-            date_deadline = (datetime.now() + timedelta(days=my_activity.days))
-            act_vals={
+        my_activity = self.env['mail.activity.type'].search([('name', '=', 'Обработать заказ')])
+        data1 = self.env['ir.model'].search([('model', '=', 'sale.order')])
+        date_deadline = (datetime.now() + timedelta(days=my_activity.days))
+        act_vals={
                         'activity_type_id':my_activity.id,
                         'date_deadline':date_deadline.strftime('%Y-%m-%d'),
                         'res_id':values['order_id'],
                         'res_model_id':data1.id,
                     }
-            if values['user_id']:
-                act_vals['user_id']=values['user_id']
-            my_activity = self.env['mail.activity'].create(act_vals)
+        if values['user_id']:
+            act_vals['user_id']=values['user_id']
+        my_activity = self.env['mail.activity'].create(act_vals)
 
     # @api.multi
     # def action_confirm(self):
