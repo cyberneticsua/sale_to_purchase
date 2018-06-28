@@ -15,6 +15,7 @@
              'views/product_inherit.xml',
              'views/lead_modification.xml',
              'views/activities_list.xml',
+             'data/defaultdata.xml',
              ],
     'images': [],
     'license': 'LGPL-3',

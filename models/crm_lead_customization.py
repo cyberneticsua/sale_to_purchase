@@ -2,6 +2,9 @@ from odoo import models, fields, api
 from odoo.exceptions import Warning
 from odoo.exceptions import UserError
 from datetime import date, datetime, timedelta
+from odoo.tools.safe_eval import safe_eval
+from random import randint, shuffle
+import math
 
 @api.model
 def _lang_get(self):
@@ -38,8 +41,9 @@ class CrmLeadFields (models.Model):
             leads_to_allocate = leads_to_allocate.filtered(lambda lead: not lead.user_id)
         
         # Assignment of opportunities to manager
-        all_team_users = self.env['team.user'].search([('running', '=', True)])
-        self.env['crm.team'].assign_leads_to_salesmen(all_team_users)
+        my_team = self.env['crm.team'].search([('name', '=', 'Europe')])
+        
+        self.env['crm.team'].custom_assign_leads_to_salesman(team_id=my_team.id,lead_id=self.id)
 
         # if user_ids:
         #     leads_to_allocate.allocate_salesman(user_ids, team_id=(vals.get('team_id')))
@@ -144,3 +148,75 @@ class CrmLeadFields (models.Model):
         #     return partner.id
 
         return False
+
+class LeadsAllocation(models.Model):
+    _inherit=['crm.team']
+
+    @api.model
+    def custom_assign_leads_to_salesmen(self, all_team_users, lead_id):
+        users = []
+        for su in all_team_users:
+            if (su.maximum_user_leads - su.leads_count) <= 0:
+                continue
+            domain = safe_eval(su.team_user_domain or '[]')
+            domain.extend([
+                ('user_id', '=', False),
+                ('assign_date', '=', False),
+                ('score', '>=', su.team_id.min_for_assign)
+            ])
+
+            # assignation rythm: 2 days of leads if a lot of leads should be assigned
+            limit = int(math.ceil(su.maximum_user_leads / 15.0))
+
+            # domain.append(('team_id', '=', su.team_id.id))
+
+            leads = self.env["crm.lead"].search([('id','=',lead_id)])
+            users.append({
+                "su": su,
+                "nbr": min(su.maximum_user_leads - su.leads_count, limit),
+                "leads": leads
+            })
+
+        assigned = set()
+        while users:
+            i = 0
+
+            # statistically select the user that should receive the next lead
+            idx = randint(0, sum(u['nbr'] for u in users) - 1)
+
+            while idx > users[i]['nbr']:
+                idx -= users[i]['nbr']
+                i += 1
+            user = users[i]
+
+            # Get the first unassigned leads available for this user
+            while user['leads'] and user['leads'][0] in assigned:
+                user['leads'] = user['leads'][1:]
+            if not user['leads']:
+                del users[i]
+                continue
+
+            # lead convert for this user
+            lead = user['leads'][0]
+            assigned.add(lead)
+
+            # Assign date will be setted by write function
+            data = {'user_id': user['su'].user_id.id}
+
+            # ToDo in master/saas-14: add option mail_auto_subscribe_no_notify on the saleman/saleteam
+            lead.with_context(mail_auto_subscribe_no_notify=True).write(data)
+            # lead.convert_opportunity(lead.partner_id and lead.partner_id.id or None)
+            self._cr.commit()
+
+            user['nbr'] -= 1
+            if not user['nbr']:
+                del users[i]
+
+    @api.model
+    def custom_assign_leads_to_salesman(self,team_id,lead_id):
+        leads = self.env["crm.lead"].search([('id','=',lead_id)])
+        leads.write({'team_id': team_id})
+
+        all_team_users = self.env['team.user'].search([('running', '=', True),('team_id','=',team_id)])
+
+        self.custom_assign_leads_to_salesmen(all_team_users=all_team_users,lead_id=lead_id)
