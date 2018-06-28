@@ -30,14 +30,19 @@ class CrmLeadFields (models.Model):
             partner_id = self_def_user._create_partner(
                 lead.id, vals.get('action'), vals.get('partner_id') or lead.partner_id.id)
             res = lead.convert_opportunity(partner_id, [], False)
-        user_ids = vals.get('user_ids')
+        
+        
 
         leads_to_allocate = leads
         if self._context.get('no_force_assignation'):
             leads_to_allocate = leads_to_allocate.filtered(lambda lead: not lead.user_id)
+        
+        # Assignment of opportunities to manager
+        all_team_users = self.env['team.user'].search([('running', '=', True)])
+        self.env['crm.team'].assign_leads_to_salesmen(all_team_users)
 
-        if user_ids:
-            leads_to_allocate.allocate_salesman(user_ids, team_id=(vals.get('team_id')))
+        # if user_ids:
+        #     leads_to_allocate.allocate_salesman(user_ids, team_id=(vals.get('team_id')))
 
         return res
 
@@ -68,6 +73,7 @@ class CrmLeadFields (models.Model):
         leads = self.env['crm.lead'].browse(self.id)
         values.update({'lead_ids': leads.ids, 'user_ids': [self.user_id.id]})
         self._convert_opportunity(values)
+
         self._create_action_for_lead()
         return leads[0].redirect_opportunity_view()
 

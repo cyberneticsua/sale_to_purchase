@@ -27,12 +27,14 @@ class HrExpenseAutoAccept(models.Model):
         # my_lines=self._move_line_get()
         # raise Warning(my_lines[0]['id'])
         # raise Warning(self.id)
-        sheet = self.env['hr.expense.sheet'].create({'expense_line_ids': [line.id for line in self],
+        sheet = self.env['hr.expense.sheet'].create({
+                # 'expense_line_ids': [line.id for line in self],
                 'employee_id': self[0].employee_id.id,
                 'name': self[0].name if len(self.ids) == 1 else '',
-                'state':'submit',
-                'responsible_id': self.env.user.id})
-        
+                'state':'approve',
+                'responsible_id': self.env.user.id
+                })
+        self.sheet_id=sheet.id
         return {
             'type': 'ir.actions.act_window',
             'view_mode': 'form',
