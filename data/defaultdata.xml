@@ -10,7 +10,12 @@
             <field name="key">sale_to_purchase.my_base_call_center_team</field>
             <field name="value">Call Center</field>
             <field name="group_ids" eval="[(4, ref('base.group_system'))]"/>
-        </record>      
+        </record>
+        <record id="base_default_activity" model="ir.config_parameter">
+            <field name="key">sale_to_purchase.my_base_default_activity</field>
+            <field name="value">Call</field>
+            <field name="group_ids" eval="[(4, ref('base.group_system'))]"/>
+        </record>           
     </data>
 </odoo>
 

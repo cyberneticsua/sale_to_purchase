@@ -19,15 +19,15 @@ class CrmLeadFields (models.Model):
 
     
     #метод, що призначає оперетора Call Center при створенні ліда
-    @api.multi
-    def write(self,vals):
-        super(CrmLeadFields,self).write(vals)
-        if self.env.context.get('SaleToPurcahseLoopBreaker'): 
-            return 
-        self = self.with_context(SaleToPurcahseLoopBreaker=True) 
-        if not(self.user_id) and (self.type=='lead'):
-            my_team = self.env['crm.team'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_call_center_team'))])
-            self.env['crm.team'].custom_assign_leads_to_salesman(team_id=my_team.id,lead_id=self.id)
+    # @api.multi
+    # def write(self,vals):
+    #     super(CrmLeadFields,self).write(vals)
+    #     if self.env.context.get('SaleToPurcahseLoopBreaker'): 
+    #         return 
+    #     self = self.with_context(SaleToPurcahseLoopBreaker=True) 
+    #     if not(self.user_id) and (self.type=='lead'):
+    #         my_team = self.env['crm.team'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_call_center_team'))])
+    #         self.env['crm.team'].custom_assign_leads_to_salesman(team_id=my_team.id,lead_id=self.id)
 
     @api.model
     def create(self, vals):
@@ -35,7 +35,7 @@ class CrmLeadFields (models.Model):
         if not ff.user_id:
             my_team = self.env['crm.team'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_call_center_team'))])
             self.env['crm.team'].custom_assign_leads_to_salesman(team_id=my_team.id,lead_id=ff.id)
-            ff._create_action_for_lead()
+            ff._create_action_for_lead(use_default_deadline=False)
         return ff
 
 
@@ -98,19 +98,24 @@ class CrmLeadFields (models.Model):
         values.update({'lead_ids': leads.ids, 'user_ids': [self.user_id.id]})
         self._convert_opportunity(values)
 
-        self._create_action_for_lead()
+        self._create_action_for_lead(use_default_deadline=True)
         return leads[0].redirect_opportunity_view()
 
     #generate activity for lead
-    def _create_action_for_lead(self):
-        my_activity = self.env['mail.activity.type'].search([('name', '=', 'Call')])
+    def _create_action_for_lead(self, use_default_deadline=True):
+        my_activity = self.env['mail.activity.type'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_default_activity'))])
         data1 = self.env['ir.model'].search([('model', '=', 'crm.lead')])
         t= date.today()
-        date_deadline = (datetime.now() + timedelta(days=my_activity.days))
+        if (use_default_deadline):
+            date_deadline = (datetime.now() + timedelta(days=my_activity.days))
+        else:
+            date_deadline = datetime.now()
+
         if date_deadline.weekday()==5:
             date_deadline= date_deadline+ timedelta(days=2)
         if date_deadline.weekday()==6:
             date_deadline= date_deadline+ timedelta(days=1)
+        
         act_vals={
                     'activity_type_id':my_activity.id,
                     'date_deadline':date_deadline.strftime('%Y-%m-%d'),

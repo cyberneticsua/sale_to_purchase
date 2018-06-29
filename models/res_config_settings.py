@@ -22,7 +22,7 @@ class ResConfigSettings(models.TransientModel):
         super(ResConfigSettings, self).set_values()
         self.env['ir.config_parameter'].sudo().set_param('sale_to_purchase.my_base_sales_team', self.my_base_sales_team)
 
-class ResConfigSettings(models.TransientModel):
+class ResConfigSettingsCall(models.TransientModel):
     _inherit = 'res.config.settings'
 
     my_base_call_center_team = fields.Char(
@@ -30,13 +30,30 @@ class ResConfigSettings(models.TransientModel):
         help="Указание команди Call Center для поиска менеджера при конвертации создании лида")
     
     def get_values(self):
-        res = super(ResConfigSettings, self).get_values()
+        res = super(ResConfigSettingsCall, self).get_values()
         res.update(
             my_base_call_center_team=self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_call_center_team')
         )
         return res
 
     def set_values(self):
-        super(ResConfigSettings, self).set_values()
+        super(ResConfigSettingsCall, self).set_values()
         self.env['ir.config_parameter'].sudo().set_param('sale_to_purchase.my_base_call_center_team', self.my_base_call_center_team)
 
+class ResConfigSettingsDefaultActivity(models.TransientModel):
+    _inherit = 'res.config.settings'
+
+    my_base_default_activity = fields.Char(
+        string="Название базовой задачи",
+        help="Указание базовой задачи для менеджера при создании лида и конвертации лида")
+    
+    def get_values(self):
+        res = super(ResConfigSettingsDefaultActivity, self).get_values()
+        res.update(
+            my_base_default_activity=self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_default_activity')
+        )
+        return res
+
+    def set_values(self):
+        super(ResConfigSettingsDefaultActivity, self).set_values()
+        self.env['ir.config_parameter'].sudo().set_param('sale_to_purchase.my_base_default_activity', self.my_base_default_activity)
