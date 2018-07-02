@@ -20,7 +20,12 @@
             <field name="key">sale_to_purchase.my_base_default_purch_manager_email</field>
             <field name="value">petro@gmail.com</field>
             <field name="group_ids" eval="[(4, ref('base.group_system'))]"/>
-        </record>            
+        </record>
+        <record id="base_default_activity_user" model="ir.config_parameter">
+            <field name="key">sale_to_purchase.my_base_default_activity_user</field>
+            <field name="value">tbuchanan</field>
+            <field name="group_ids" eval="[(4, ref('base.group_system'))]"/>
+        </record>             
     </data>
 </odoo>
 

@@ -125,6 +125,8 @@ class CrmLeadFields (models.Model):
                 }
         if self.user_id.id:
             act_vals['user_id']=self.user_id.id
+        else:
+            act_vals['user_id']=self.env['res.users'].search([('login','=',self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_default_activity_user'))]).id
         my_activity = self.env['mail.activity'].create(act_vals)
 
     def _create_partner(self, lead_id, action, partner_id):

@@ -75,3 +75,21 @@ class ResConfigSettingsDefaultPurchaseManagerEmail(models.TransientModel):
     def set_values(self):
         super(ResConfigSettingsDefaultPurchaseManagerEmail, self).set_values()
         self.env['ir.config_parameter'].sudo().set_param('sale_to_purchase.my_base_default_purch_manager_email', self.my_base_default_purch_manager_email)
+    
+class ResConfigSettingsDefaultActivityUser(models.TransientModel):
+    _inherit = 'res.config.settings'
+
+    my_base_default_activity_user = fields.Char(
+        string="Default acitivity user login",
+        help="Login юзера, которому ставится задача, если для документа нет отвественного")
+    
+    def get_values(self):
+        res = super(ResConfigSettingsDefaultActivityUser, self).get_values()
+        res.update(
+            my_base_default_activity_user=self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_default_activity_user')
+        )
+        return res
+
+    def set_values(self):
+        super(ResConfigSettingsDefaultActivityUser, self).set_values()
+        self.env['ir.config_parameter'].sudo().set_param('sale_to_purchase.my_base_default_activity_user', self.my_base_default_activity_user)
