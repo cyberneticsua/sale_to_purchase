@@ -47,6 +47,9 @@
                     </div>
                 </button>
             </button>
+            <!-- <button name="%(website_crm_score.website_crm_score_pageviews)d" position="attributes">
+                    <attribute name="invisible">True</attribute>
+            </button> -->
         </field>
     </record>
 </odoo>

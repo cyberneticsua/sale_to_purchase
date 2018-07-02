@@ -105,7 +105,7 @@ class CrmLeadFields (models.Model):
     def _create_action_for_lead(self, use_default_deadline=True):
         my_activity = self.env['mail.activity.type'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_default_activity'))])
         data1 = self.env['ir.model'].search([('model', '=', 'crm.lead')])
-        t= date.today()
+        t = date.today()
         if (use_default_deadline):
             date_deadline = (datetime.now() + timedelta(days=my_activity.days))
         else:
@@ -119,6 +119,7 @@ class CrmLeadFields (models.Model):
         act_vals={
                     'activity_type_id':my_activity.id,
                     'date_deadline':date_deadline.strftime('%Y-%m-%d'),
+                    'summary':my_activity.summary,
                     'res_id':self.id,
                     'res_model_id':data1.id,
                 }
@@ -173,6 +174,12 @@ class CrmLeadFields (models.Model):
         #     return partner.id
 
         return False
+
+        #fields for utm.referrer and utm.expid
+    utm_referrer_id = fields.Many2one('utm.referrer', 'Referrer',
+                                help="This is the referrer of the link")
+    utm_expid_id = fields.Many2one('utm.expid', 'Expid',
+                                help="This is the expid of the link")
 
 class LeadsAllocation(models.Model):
     _inherit=['crm.team']

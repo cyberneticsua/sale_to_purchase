@@ -11,8 +11,13 @@
                 <xpath expr="//field[@name='mobile']" position="after">
                     <field name="client_lang" />
                 </xpath> 
+                <xpath expr="//field[@name='source_id']" position="after">
+                    <field name="utm_referrer_id" />
+                    <field name="utm_expid_id" />
+                </xpath> 
             </field>
         </record>
+
         <record id="view_crm_lead_convert_button" model="ir.ui.view">
             <field name="name">CRM Lead button convert change</field>
             <field name="model">crm.lead</field>
@@ -21,6 +26,23 @@
                 <button name="%(crm.action_crm_lead2opportunity_partner)d" position="replace">
                     <button string="Создать сделку" name="sale_lead2opportunity_waldberg" type="object" class="oe_highlight" />
                 </button>
+            </field>
+        </record>
+
+        <record id="view_crm_oppor_form" model="ir.ui.view">
+            <field name="name">CRM Oppor customization</field>
+            <field name="model">crm.lead</field>
+            <field name="type">form</field>
+            <field name="priority" eval="16" />
+            <field name="inherit_id" ref="crm.crm_case_form_view_oppor" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='mobile']" position="after">
+                    <field name="client_lang" />
+                </xpath> 
+                <xpath expr="//field[@name='source_id']" position="after">
+                    <field name="utm_referrer_id" />
+                    <field name="utm_expid_id" />
+                </xpath> 
             </field>
         </record>
     </data>

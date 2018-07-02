@@ -88,7 +88,7 @@ class SaleToPurchase(models.Model):
         super(SaleToPurchase,self).write(vals)
         values={}
         values['order_id']=self.id
-        values['user_id']=self.user_id.id
+        values['user_id']=self.env['res.users'].search([('login','=',self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_default_purch_manager_email'))]).id
         if self.env.context.get('MyModelLoopBreaker'): 
             return 
         self = self.with_context(MyModelLoopBreaker=True) 
@@ -103,6 +103,7 @@ class SaleToPurchase(models.Model):
         act_vals={
                         'activity_type_id':my_activity.id,
                         'date_deadline':date_deadline.strftime('%Y-%m-%d'),
+                        'summary':my_activity.summary,
                         'res_id':values['order_id'],
                         'res_model_id':data1.id,
                     }
