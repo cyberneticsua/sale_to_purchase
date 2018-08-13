@@ -52,4 +52,22 @@
             </button> -->
         </field>
     </record>
+
+    <record id="lead_partner_duplicates_form_view" model="ir.ui.view">
+        <field name="name">CRM Lead</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_form_view_leads" />
+        <field name="arch" type="xml">
+            <button name="toggle_active" position="after">
+                <button class="oe_inline oe_stat_button" name="button_lead_partner_duplicates" type="object" icon="fa-plus-square-o" context="{'default_partner_id': partner_id, 'search_default_draft': 1}" options="{}" modifiers="{'invisible':[['type','=','opportunity']]}" attrs="{'invisible':[['type','=','opportunity']]}">
+                    <div class="o_stat_info" modifiers="{}">
+                        <field class="o_stat_value" string="Контакт.дубль" name="partner_duplicates_count" modifiers="{'readonly':true}" widget="statinfo" />
+                    </div>
+                </button>
+            </button>
+            <!-- <button name="%(website_crm_score.website_crm_score_pageviews)d" position="attributes">
+                    <attribute name="invisible">True</attribute>
+            </button> -->
+        </field>
+    </record>
 </odoo>

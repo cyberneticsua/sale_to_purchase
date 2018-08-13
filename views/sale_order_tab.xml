@@ -45,6 +45,10 @@
                     <!-- attrs=" { 'readonly': [('isPurchased', '=', True )] }" -->
                 </field>
                 
+                <!-- 12.08.2018 -->
+                <!-- <xpath expr="//field[@name='order_line']//tree//field[@name='price_subtotal']" position="after">
+                    <field name="dummy_variable" invisible="True"/> 
+                </xpath> -->
             </field>
         </record>
         <!-- button_purchase_orders -->

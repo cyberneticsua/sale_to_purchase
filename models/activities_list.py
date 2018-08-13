@@ -18,7 +18,7 @@ class ActivityTypeList(models.Model):
          }
 
 class DuplicatesLead(models.Model):
-    #########Підрахунок кількості деталей для замовлення 
+    #########Підрахунок кількості дублікатів 
     _inherit=['crm.lead']
 
     duplicates_count= fields.Integer(
@@ -79,3 +79,58 @@ class DuplicatesLead(models.Model):
     @api.multi
     def button_lead_duplicates(self):
         return self.get_lead_view("Список возможных дубликатов")
+
+class DuplicatesLeadPartner(models.Model):
+    #########Підрахунок кількості дублікатів 
+    _inherit=['crm.lead']
+
+    partner_duplicates_count= fields.Integer(
+        string='Количество партн.дубликатов',compute='count_duplicate_partner_leads'
+    )
+    
+    def count_duplicate_partner_leads(self):
+        self.partner_duplicates_count = self.env['res.partner'].search_count(['|',
+            '&',('email','!=',False),('email', '=', self.email_from),
+            '&',('phone', '!=',False),('phone', '=', self.phone),
+            
+        ])
+ 
+
+    @api.multi
+    def button_lead_partner_duplicates(self):
+        return self.get_partner_view("Список возможных дубликатов клиентов")
+
+    @api.model
+    def get_partner_view(self, view_title):
+        ir_model_data = self.env['ir.model.data']
+        try:
+           tree_id = ir_model_data.get_object_reference('base', 'view_partner_tree')[1]
+           form_id = ir_model_data.get_object_reference('base', 'view_partner_form')[1]
+        except ValueError:
+           view_id = False
+        # child_ids = self.env['res.partner'].search(['|','|',
+        #     '&',('email','!=',False),('email', '=', self.email_from),
+        #     '&',('phone', '!=',False),('phone', '=', self.phone),
+        #     '&',('phone', '!=',False),('mobile', '=', self.phone),
+        # ])
+        child_ids = self.env['res.partner'].search(['|',
+            '&',('email','!=',False),('email', '=', self.email_from),
+            '&',('phone', '!=',False),('phone', '=', self.phone),
+            
+        ])
+        action_context = self._context.copy()
+        return {
+            'name': view_title,
+            'type': 'ir.actions.act_window',
+            'domain': [('id', 'in', child_ids.ids)],
+            'view_type': 'form',
+            'view_mode': 'tree,form',
+            'res_model': 'res.partner',
+            'view_id': False,
+            'views': [(tree_id, 'tree'),(form_id, 'form')],
+            'target': 'current',
+            'context': action_context,
+        }
+
+
+        

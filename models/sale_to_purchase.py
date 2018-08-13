@@ -25,6 +25,24 @@ class SaleOrderLine (models.Model):
         product_info_base = self.env['product.template'].search([('id','=',product_template_id.product_tmpl_id.id)])
         self.product_info=product_info_base.base_params_info
 
+    #10.08.2018 Зміна кількості замовленої кількості при зміні проплаченої кількості
+    # @api.onchange('qty_invoiced')
+    # def _get_ordered_qty(self):
+    #     for line in self:
+    #         line.write({'product_uom_qty':self.qty_invoiced})
+
+    @api.depends('invoice_lines.invoice_id.state', 'invoice_lines.quantity','invoice_lines.price_unit','invoice_lines.discount')
+    def _get_invoice_qty(self):
+        super(SaleOrderLine,self)._get_invoice_qty()
+        for line in self:
+            if (line.qty_invoiced):
+                line.write({'product_uom_qty':line.qty_invoiced})
+            if (line.invoice_lines):
+                line.write({'price_unit':line.invoice_lines[0].price_unit})
+            if (line.invoice_lines):
+                line.write({'discount':line.invoice_lines[0].discount})
+
+   
 class PurchaseOrderLine (models.Model):
     _inherit='purchase.order.line'
     real_ready_date=fields.Datetime(
@@ -47,7 +65,7 @@ class PurchaseOrder (models.Model):
 
     # 24.04.2018
     prepayment = fields.Monetary(
-        string='Предолата',
+        string='Предоплата',
     )
 
     prepayment_date = fields.Date(
