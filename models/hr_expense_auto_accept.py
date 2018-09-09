@@ -16,8 +16,11 @@ class HrExpenseAutoAccept(models.Model):
                 'employee_id': self[0].employee_id.id,
                 'name': self[0].name if len(self.ids) == 1 else '',
                 'state':'approve',
-                'responsible_id': self.env.user.id
+                'responsible_id': self.env.user.id,
+                'payment_mode':'own_account'
                 })
+        # post expense
+        # sheet.action_sheet_move_create()
         self.sheet_id=sheet.id
         return {
             'type': 'ir.actions.act_window',

@@ -33,7 +33,7 @@ class PurchaseOrderBOMWizard(models.TransientModel):
     
    
     order_line=fields.One2many('purchase.order.line.bom.wizard', 'wizard_order_id', string='Order Lines')
-    date_order = fields.Datetime(string='Дата готовности',required=True)
+    # date_order = fields.Date(string='Дата готовности',required=True)
     company_id = fields.Many2one('res.company', string='Company')
     picking_type_id = fields.Many2one('stock.picking.type', 'Deliver To')
     # sale_order_line_id = fields.Integer(
@@ -78,12 +78,17 @@ class PurchaseOrderBOMWizard(models.TransientModel):
                                                 'price_unit':i.price_unit,
                                                 'product_uom':i.product_uom.id,
                                                 'order_id':pur_id.id,
-                                                'date_planned':self.date_order,
+                                                #'date_planned':self.date_order,
+                                                'date_planned':i.date_planned,
                                                 #додавання посилання на sale order
                                                 'sale_order_line_id':data.id,
                                                 })
             pur_id.button_confirm()
     
+    def _compute_price(self, product_id):
+        product_tmpl_id = self.env['product.product'].search([('id','=',product_id)])
+        return product_tmpl_id.standard_price
+
     @api.model
     def default_get(self, fields):
         res = super(PurchaseOrderBOMWizard, self).default_get(fields)
@@ -106,18 +111,18 @@ class PurchaseOrderBOMWizard(models.TransientModel):
         for item in record.order_line:
             if item.id in selected_ids:
                 product_tmpl_id = self.env['product.product'].search([('id','=',item.product_id.id)])
-                
                 bom_id = self.env['mrp.bom'].search([('product_tmpl_id','=',product_tmpl_id.product_tmpl_id.id)])
                 if bom_id:
                     bom_lines_ids = self.env['mrp.bom.line'].search([('bom_id','=',bom_id.id)])
                     if bom_lines_ids:
                         for bom_item in bom_lines_ids:
+                            price_price=self._compute_price(bom_item.product_id.id)
                             result1.append((0, 0, {'product_id': bom_item.product_id.id,
                                     'name':bom_item.product_id.name,
                                     'product_qty':bom_item.product_qty*item.product_uom_qty,
-                                    'price_unit':0.0,
+                                    'price_unit':price_price,
                                     'product_uom':bom_item.product_uom_id.id,
-                                    'price_subtotal':0.0*bom_item.product_qty*item.product_uom_qty,
+                                    'price_subtotal':price_price*bom_item.product_qty*item.product_uom_qty,
                                     ###################################
                                     'sale_order_line_id':item.id,
                                    }))
@@ -129,16 +134,18 @@ class PurchaseOrderLineWizard(models.TransientModel):
     _description = 'Purchase Order Line BOM wizard'
 
 
-    @api.multi
-    @api.onchange('partner_id')
-    def _compute_price(self):
-        product_tmpl_id = self.env['product.product'].search([('id','=',self.product_id.id)])
-        product_price_from_supplier = self.env['product.supplierinfo'].search([('product_tmpl_id','=',product_tmpl_id.product_tmpl_id.id),('name','=',self.partner_id.id)])
-        if product_price_from_supplier:
-            self.price_unit=product_price_from_supplier.price
-        else:
-            self.price_unit=0.0
-        # print (self.env.context)
+
+    # Розрахунок ціни з використанням вендорапостачальника
+    # @api.multi
+    # # @api.onchange('partner_id')
+    # def _compute_price(self):
+        # product_tmpl_id = self.env['product.product'].search([('id','=',self.product_id.id)])
+        # product_price_from_supplier = self.env['product.supplierinfo'].search([('product_tmpl_id','=',product_tmpl_id.product_tmpl_id.id),('name','=',self.partner_id.id)])
+        # if product_price_from_supplier:
+            # self.price_unit=product_price_from_supplier.price
+        # else:
+            # self.price_unit=product_tmpl_id.standard_price
+        # self.price_unit=product_tmpl_id.standard_price
     
     @api.multi
     @api.depends('product_qty','price_unit')
@@ -151,6 +158,7 @@ class PurchaseOrderLineWizard(models.TransientModel):
     def _add_name(self):
         product_tmpl_id = self.env['product.product'].search([('id','=',self.product_id.id)])
         self.name = product_tmpl_id.name
+        self.product_uom = product_tmpl_id.uom_id
         
     
     name = fields.Text(string='Описание')
@@ -164,3 +172,5 @@ class PurchaseOrderLineWizard(models.TransientModel):
     sale_order_line_id = fields.Integer(
         string='Sale Order Line ID',
     )
+
+    date_planned=fields.Date(string='Дата готовности')

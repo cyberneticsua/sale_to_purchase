@@ -5,6 +5,7 @@ from datetime import date, datetime, timedelta
 from odoo.tools.safe_eval import safe_eval
 from random import randint, shuffle
 import math
+import pytz
 
 @api.model
 def _lang_get(self):
@@ -36,6 +37,7 @@ class CrmLeadFields (models.Model):
             my_team = self.env['crm.team'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_call_center_team'))])
             self.env['crm.team'].custom_assign_leads_to_salesman(team_id=my_team.id,lead_id=ff.id)
             ff._create_action_for_lead(use_default_deadline=False)
+
         return ff
 
 
@@ -103,23 +105,13 @@ class CrmLeadFields (models.Model):
 
     #generate activity for lead
     def _create_action_for_lead(self, use_default_deadline=True):
-        my_activity = self.env['mail.activity.type'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_default_activity'))])
+        my_activity_type = self.env['mail.activity.type'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_default_activity'))])
         data1 = self.env['ir.model'].search([('model', '=', 'crm.lead')])
-        t = date.today()
-        if (use_default_deadline):
-            date_deadline = (datetime.now() + timedelta(days=my_activity.days))
-        else:
-            date_deadline = datetime.now()
-
-        if date_deadline.weekday()==5:
-            date_deadline= date_deadline+ timedelta(days=2)
-        if date_deadline.weekday()==6:
-            date_deadline= date_deadline+ timedelta(days=1)
         
         act_vals={
-                    'activity_type_id':my_activity.id,
-                    'date_deadline':date_deadline.strftime('%Y-%m-%d'),
-                    'summary':my_activity.summary,
+                    'activity_type_id':my_activity_type.id,
+                    # 'date_deadline':date_deadline.strftime('%Y-%m-%d'),
+                    'summary':my_activity_type.summary,
                     'res_id':self.id,
                     'res_model_id':data1.id,
                 }
@@ -128,6 +120,20 @@ class CrmLeadFields (models.Model):
         else:
             act_vals['user_id']=self.env['res.users'].search([('login','=',self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_default_activity_user'))]).id
         my_activity = self.env['mail.activity'].create(act_vals)
+        my_activity._onchange_activity_type_id()
+
+        t = date.today()
+        if (use_default_deadline):
+            date_deadline = datetime.now(pytz.timezone(self.user_id.tz or 'GMT')) + timedelta(days=my_activity_type.days)
+        else:
+            date_deadline = datetime.now(pytz.timezone(self.user_id.tz or 'GMT'))
+
+        if date_deadline.weekday()==5:
+            date_deadline= date_deadline+ timedelta(days=2)
+        if date_deadline.weekday()==6:
+            date_deadline= date_deadline+ timedelta(days=1)
+        my_activity.write({'date_deadline':date_deadline.strftime('%Y-%m-%d')})
+       
 
     def _create_partner(self, lead_id, action, partner_id):
         """ Create partner based on action.

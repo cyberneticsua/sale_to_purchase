@@ -31,16 +31,7 @@ class SaleOrderLine (models.Model):
     #     for line in self:
     #         line.write({'product_uom_qty':self.qty_invoiced})
 
-    @api.depends('invoice_lines.invoice_id.state', 'invoice_lines.quantity','invoice_lines.price_unit','invoice_lines.discount')
-    def _get_invoice_qty(self):
-        super(SaleOrderLine,self)._get_invoice_qty()
-        for line in self:
-            if (line.qty_invoiced):
-                line.write({'product_uom_qty':line.qty_invoiced})
-            if (line.invoice_lines):
-                line.write({'price_unit':line.invoice_lines[0].price_unit})
-            if (line.invoice_lines):
-                line.write({'discount':line.invoice_lines[0].discount})
+    
 
    
 class PurchaseOrderLine (models.Model):
@@ -211,20 +202,27 @@ class PurchaseOrderWizard(models.TransientModel):
     
     partner_id = fields.Many2one('res.partner', string='Поставщик',required=True)
     order_line=fields.One2many('purchase.order.line.wizard', 'wizard_order_id', string='Order Lines')
-    date_order = fields.Datetime(string='Дата готовности',required=True)
+    # date_order = fields.Date(string='Дата готовности',required=True)
     # company_id = fields.Many2one('res.company', string='Company')
     # picking_type_id = fields.Many2one('stock.picking.type', 'Deliver To')
     
-    @api.multi
-    @api.onchange('partner_id')
-    def _compute_price(self):
-        for i in self.order_line:
-            product_tmpl_id = self.env['product.product'].search([('id','=',i.product_id.id)])
-            product_price_from_supplier = self.env['product.supplierinfo'].search([('product_tmpl_id','=',product_tmpl_id.product_tmpl_id.id),('name','=',self.partner_id.id)])
-            if product_price_from_supplier:
-                i.price_unit=product_price_from_supplier.price
-            else:
-                i.price_unit=0.0
+
+    def _compute_price(self, product_id):
+        product_tmpl_id = self.env['product.product'].search([('id','=',product_id)])
+        return product_tmpl_id.standard_price
+    
+    # Врахування зміни ціни при зміні постачальника
+    # @api.multi
+    # @api.onchange('partner_id')
+    # def _compute_price(self):
+        # for i in self.order_line:
+            # product_tmpl_id = self.env['product.product'].search([('id','=',i.product_id.id)])
+            # product_price_from_supplier = self.env['product.supplierinfo'].search([('product_tmpl_id','=',product_tmpl_id.product_tmpl_id.id),('name','=',self.partner_id.id)])
+            # if product_price_from_supplier:
+            #     i.price_unit=product_price_from_supplier.price
+            # else:
+            # i.price_unit=product_tmpl_id.standard_price
+    
     
     @api.multi
     def generate_purchase_order(self):
@@ -253,7 +251,8 @@ class PurchaseOrderWizard(models.TransientModel):
                                                 'price_unit':i.price_unit,
                                                 'product_uom':i.product_uom.id,
                                                 'order_id':pur_id.id,
-                                                'date_planned':self.date_order,
+                                                #'date_planned':self.date_order,
+                                                'date_planned':i.date_planned,
                                                 #додано посилання на sale.order.line
                                                 'sale_order_line_id':data.id,
                                                 })
@@ -284,15 +283,16 @@ class PurchaseOrderWizard(models.TransientModel):
 
         for item in record.order_line:
             if item.id in selected_ids:
+                price_price=self._compute_price(item.product_id.id)
                 result1.append((0, 0, {'product_id': item.product_id.id,
                                     'name':item.name,
                                     'product_qty':item.product_uom_qty,
                                     # 'price_unit':item.price_unit,
                                     'product_info':item.product_info,
-                                    'price_unit':0.0,
+                                    'price_unit':price_price,
                                     'product_uom':item.product_uom.id,
                                     # 'price_subtotal':item.price_unit*item.product_uom_qty,
-                                    'price_subtotal':0.0*item.product_uom_qty,
+                                    'price_subtotal':price_price*item.product_uom_qty,
                                     ###################################
                                     'sale_order_line_id':item.id,
                                    }))
@@ -315,6 +315,7 @@ class PurchaseOrderLineWizard(models.TransientModel):
     def _add_name(self):
         product_tmpl_id = self.env['product.product'].search([('id','=',self.product_id.id)])
         self.name = product_tmpl_id.name
+        self.product_uom = product_tmpl_id.uom_id
 
     
     name = fields.Text(string='Описание')
@@ -328,6 +329,7 @@ class PurchaseOrderLineWizard(models.TransientModel):
     sale_order_line_id = fields.Integer(
         string='Sale Order Line ID',
     )
+    date_planned=fields.Date(string='Дата готовности')
 
 class ProductTemplateInfo(models.Model):
     _inherit="product.template"

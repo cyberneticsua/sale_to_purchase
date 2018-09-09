@@ -22,7 +22,7 @@
                     <group>
                     	<group>
                     		<field name="partner_id" domain="[('supplier','=',True)]"/>
-                    		<field name="date_order"/>
+                    		<!-- <field name="date_order"/> -->
                     	</group>
                     	<!-- <group>
                     		<field name="company_id"/>
@@ -34,6 +34,7 @@
                                     <field name="product_id" context="{'partner_id': parent.partner_id}" required="True"/>
                                     <field name="name" required="True" invisible="True"/>
                                     <field name="product_info"/>
+                                    <field name="date_planned"/>
                                     <field name="product_qty" required="True"/>
                                     <field name="product_uom" required="True" invisible="True"/>
                                     <field name="price_unit" required="True"/>

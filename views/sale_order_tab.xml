@@ -110,9 +110,9 @@
                 <xpath expr="//field[@name='partner_id']" position="after">
                     <field name="sale_order_invoiced_status_wald" attrs="{'invisible': [('state', 'not in', ['sale', 'done'])]}"/>
                 </xpath>    
-                <xpath expr="//field[@name='confirmation_date']" position="after">
+                <!-- <xpath expr="//field[@name='confirmation_date']" position="after">
                     <field name="invoiced_sum_wald"/>
-                </xpath>    
+                </xpath>     -->
             </field>
         </record>
 
@@ -134,8 +134,19 @@
                 </xpath> -->
 			</field>
 		</record>
-        
-        
+        <record id="sale_order_create_invoice" model="ir.ui.view">
+            <field name="name">sale.order.create.invoice.button</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <button  name="%(sale.action_view_sale_advance_payment_inv)d" position="replace">
+                     <button string="Создать счет" name='create_invoice_button' 
+                     type="object" class="btn-primary"
+                     attrs="{'invisible': [('invoice_status', '!=', 'to invoice')]}"/>
+                </button>
+                
+            </field>
+        </record>
     </data>
 </odoo>
 

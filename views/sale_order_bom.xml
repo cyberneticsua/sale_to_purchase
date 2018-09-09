@@ -17,15 +17,16 @@
         <field name="arch" type="xml">
                <form string="Заказ у поставщика">
                     <group>
-                        <group>
+                        <!-- <group>
                     		<field name="date_order"/>
-                    	</group>
+                    	</group> -->
                     </group>
                     <field name="order_line">
                                 <tree string="Purchase Order Lines" editable="bottom">
                                     <field name="product_id" required="True"/>
                                     <field name="name" invisible="True" />
                                     <field name="partner_id" domain="[('supplier','=',True)]"/>
+                                    <field name="date_planned"/>
                                     <field name="product_qty" required="True"/>
                                     <field name="product_uom" required="True" invisible="True"/>
                                     <field name="price_unit" required="True"/>
