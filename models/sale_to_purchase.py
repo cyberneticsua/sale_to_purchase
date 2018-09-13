@@ -104,6 +104,7 @@ class SaleToPurchase(models.Model):
         if not(self.sale_order_to_production_task_created) and (self.sale_order_invoiced_status_wald=='to_production'):
             self.sale_order_to_production_task_created=True
             self._create_activity_for_manager(values)
+            self._create_mail_follower_for_manager(values)
 
     def _create_activity_for_manager(self,values):
         my_activity = self.env['mail.activity.type'].search([('name', '=', 'Обработать заказ')])
@@ -119,6 +120,23 @@ class SaleToPurchase(models.Model):
         if values['user_id']:
             act_vals['user_id']=values['user_id']
         my_activity = self.env['mail.activity'].create(act_vals)
+
+    #add purchase manager as a follower for all invoices
+    def _create_mail_follower_for_manager(self,values):
+        # data1 = self.env['ir.model'].search([('model', '=', 'account.invoice')])
+        my_partner_id=self.env['res.users'].search([('id', '=', values['user_id'])]).partner_id.id
+        my_sale_orders=self.env['sale.order'].search([('id', '=', values['order_id'])])
+        for order in my_sale_orders:
+            invoice_ids = order.order_line.mapped('invoice_lines').mapped('invoice_id').filtered(lambda r: r.type in ['out_invoice', 'out_refund'])
+            if invoice_ids:
+                for inv in invoice_ids:
+                    act_vals={
+                        'res_id':inv.id,
+                        'res_model':'account.invoice',
+                        'partner_id':my_partner_id,
+                    }    
+                    my_activity = self.env['mail.followers'].create(act_vals)
+    
 
     # @api.multi
     # def action_confirm(self):

@@ -32,6 +32,15 @@ class SaleOrderLine (models.Model):
         if not self.product_id:
             self.price_unit = 0.0
             return
+    
+    #Add product_info field to account.invoice.line
+    @api.model
+    def _prepare_invoice_line(self, qty):
+        res = super(SaleOrderLine, self)._prepare_invoice_line(qty=self.product_uom_qty)
+        res.update({
+            'product_info': self.product_info,
+            })
+        return res
 
 
 class PurchaseOrderLine (models.Model):
@@ -76,4 +85,7 @@ class PurchaseOrderLine (models.Model):
 #                 line.write({'price_unit':line.invoice_lines[0].price_unit})
 #             if (line.invoice_lines):
 #                 line.write({'discount':line.invoice_lines[0].discount})
-    
+class AccountInvoiceLine(models.Model):
+    _inherit = 'account.invoice.line'
+    product_info = fields.Text(string="Комплектация")
+

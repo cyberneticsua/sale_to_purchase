@@ -50,5 +50,17 @@
                 </form>
         </field>
         </record>
+
+        <record id="invoice_form_product_decription" model="ir.ui.view">
+            <field name="name">account.invoice.form</field> 
+            <field name="model">account.invoice</field> 
+            <field name="inherit_id" ref="account.invoice_form" /> 
+            <field name="priority">2</field> 
+            <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_line_ids']//tree//field[@name='product_id']" position="after">
+                <field name="product_info" /> 
+            </xpath>
+            </field>
+        </record>
 	</data>
 </odoo>

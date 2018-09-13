@@ -76,9 +76,9 @@ class CrmLeadFields (models.Model):
     @api.multi
     def _create_lead_partner_data(self, name, is_company, parent_id=False):
         my_result = super(CrmLeadFields, self)._create_lead_partner_data(name,is_company,parent_id)
-        if self.client_lang:
-            my_result['lang']=self.client_lang
-            my_result['client_type_id']=self.client_type_id.id
+        if self.client_language:
+            my_result['client_language']=self.client_language
+        my_result['client_type_id']=self.client_type_id.id
         return my_result
 
 
