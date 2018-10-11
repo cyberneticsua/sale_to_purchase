@@ -11,7 +11,7 @@ class SaleOrderAutoInvoice (models.Model):
         payment.with_context(active_ids=self.id).create_invoices()        
         invoices = self.mapped('invoice_ids')
         for invoice in invoices:
-            invoice.description=self.description
+            invoice.description=self.x_studio_field_7NjeR
             invoice.action_invoice_open()
     
     def create_invoice_button(self):
@@ -20,7 +20,7 @@ class SaleOrderAutoInvoice (models.Model):
         invoices = self.mapped('invoice_ids')
         for invoice in invoices:
             if (invoice.state == 'draft'):
-                invoice.description=self.description
+                invoice.description=self.x_studio_field_7NjeR
                 invoice.action_invoice_open()
 
 

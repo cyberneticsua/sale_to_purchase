@@ -10,8 +10,7 @@ class ActivityTypeList(models.Model):
     def action_open_new_tab(self):
         for rec in self:
             base_url = self.env['ir.config_parameter'].get_param('web.base.url')
-            
-            record_url = base_url + "/web#id=" + str(self.id) + "&view_type=form&model=&&action=687"
+            record_url = base_url + "/web#id=" + str(self.id) + "&view_type=form&model=&&action="+str(self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.activity_action_id'))
 
         client_action = {
                 'type': 'ir.actions.act_url',

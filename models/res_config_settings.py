@@ -116,8 +116,8 @@ class ResConfigSettingsOpporActionName(models.TransientModel):
     _inherit = 'res.config.settings'
 
     oppor_action_name = fields.Integer(
-        string="Имя action для oppor",
-        help="Имя action для открития Oppor в новом окне")
+        string="ID action для oppor",
+        help="ID action для открития Oppor в новом окне")
     
     def get_values(self):
         res = super(ResConfigSettingsOpporActionName, self).get_values()
@@ -129,3 +129,21 @@ class ResConfigSettingsOpporActionName(models.TransientModel):
     def set_values(self):
         super(ResConfigSettingsOpporActionName, self).set_values()
         self.env['ir.config_parameter'].sudo().set_param('sale_to_purchase.oppor_action_name', self.oppor_action_name)
+
+class ResConfigSettingsActivityActionName(models.TransientModel):
+    _inherit = 'res.config.settings'
+
+    activity_action_id = fields.Integer(
+        string="ID action для activity",
+        help="ID action для открития Activity в новом окне")
+    
+    def get_values(self):
+        res = super(ResConfigSettingsActivityActionName, self).get_values()
+        res.update(
+            oppor_action_name=self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.activity_action_id')
+        )
+        return res
+
+    def set_values(self):
+        super(ResConfigSettingsActivityActionName, self).set_values()
+        self.env['ir.config_parameter'].sudo().set_param('sale_to_purchase.activity_action_id', self.activity_action_id)

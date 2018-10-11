@@ -35,6 +35,11 @@
             <field name="key">sale_to_purchase.oppor_action_name</field>
             <field name="value">425</field>
             <field name="group_ids" eval="[(4, ref('base.group_system'))]"/>
+        </record>
+        <record id="base_activity_action_id" model="ir.config_parameter">
+            <field name="key">sale_to_purchase.activity_action_id</field>
+            <field name="value">425</field>
+            <field name="group_ids" eval="[(4, ref('base.group_system'))]"/>
         </record>                
     </data>
 </odoo>
