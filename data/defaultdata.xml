@@ -25,7 +25,17 @@
             <field name="key">sale_to_purchase.my_base_default_activity_user</field>
             <field name="value">tbuchanan</field>
             <field name="group_ids" eval="[(4, ref('base.group_system'))]"/>
-        </record>             
+        </record>
+        <record id="base_lead_action_name" model="ir.config_parameter">
+            <field name="key">sale_to_purchase.lead_action_name</field>
+            <field name="value">222</field>
+            <field name="group_ids" eval="[(4, ref('base.group_system'))]"/>
+        </record>
+        <record id="base_oppor_action_name" model="ir.config_parameter">
+            <field name="key">sale_to_purchase.oppor_action_name</field>
+            <field name="value">425</field>
+            <field name="group_ids" eval="[(4, ref('base.group_system'))]"/>
+        </record>                
     </data>
 </odoo>
 

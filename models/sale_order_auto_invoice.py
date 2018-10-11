@@ -11,6 +11,7 @@ class SaleOrderAutoInvoice (models.Model):
         payment.with_context(active_ids=self.id).create_invoices()        
         invoices = self.mapped('invoice_ids')
         for invoice in invoices:
+            invoice.description=self.description
             invoice.action_invoice_open()
     
     def create_invoice_button(self):
@@ -19,6 +20,7 @@ class SaleOrderAutoInvoice (models.Model):
         invoices = self.mapped('invoice_ids')
         for invoice in invoices:
             if (invoice.state == 'draft'):
+                invoice.description=self.description
                 invoice.action_invoice_open()
 
 
@@ -85,7 +87,15 @@ class PurchaseOrderLine (models.Model):
 #                 line.write({'price_unit':line.invoice_lines[0].price_unit})
 #             if (line.invoice_lines):
 #                 line.write({'discount':line.invoice_lines[0].discount})
+
+
 class AccountInvoiceLine(models.Model):
     _inherit = 'account.invoice.line'
     product_info = fields.Text(string="Комплектация")
 
+class AccountInvoice (models.Model):
+    _inherit='account.invoice'
+     
+    description = fields.Text(
+        string='Комментарий',
+    )

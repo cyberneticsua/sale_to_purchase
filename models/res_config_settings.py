@@ -93,3 +93,39 @@ class ResConfigSettingsDefaultActivityUser(models.TransientModel):
     def set_values(self):
         super(ResConfigSettingsDefaultActivityUser, self).set_values()
         self.env['ir.config_parameter'].sudo().set_param('sale_to_purchase.my_base_default_activity_user', self.my_base_default_activity_user)
+
+class ResConfigSettingsLeadActionName(models.TransientModel):
+    _inherit = 'res.config.settings'
+
+    lead_action_name = fields.Integer(
+        string="Имя action для lead",
+        help="Имя action для открития Lead в новом окне")
+    
+    def get_values(self):
+        res = super(ResConfigSettingsLeadActionName, self).get_values()
+        res.update(
+            lead_action_name=self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.lead_action_name')
+        )
+        return res
+
+    def set_values(self):
+        super(ResConfigSettingsLeadActionName, self).set_values()
+        self.env['ir.config_parameter'].sudo().set_param('sale_to_purchase.lead_action_name', self.lead_action_name)
+
+class ResConfigSettingsOpporActionName(models.TransientModel):
+    _inherit = 'res.config.settings'
+
+    oppor_action_name = fields.Integer(
+        string="Имя action для oppor",
+        help="Имя action для открития Oppor в новом окне")
+    
+    def get_values(self):
+        res = super(ResConfigSettingsOpporActionName, self).get_values()
+        res.update(
+            oppor_action_name=self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.oppor_action_name')
+        )
+        return res
+
+    def set_values(self):
+        super(ResConfigSettingsOpporActionName, self).set_values()
+        self.env['ir.config_parameter'].sudo().set_param('sale_to_purchase.oppor_action_name', self.oppor_action_name)

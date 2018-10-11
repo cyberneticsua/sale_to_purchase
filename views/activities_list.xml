@@ -29,8 +29,10 @@
                 <field name="date_deadline"/>
                 <button class="oe_inline oe_stat_button"
                             string="Перейти"
-                            name="return_values"
+                            name="action_open_new_tab"
                             type="object"
+                            
+                           
                 />
             </tree>
         </field>

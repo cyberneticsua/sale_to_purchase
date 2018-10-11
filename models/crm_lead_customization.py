@@ -19,7 +19,12 @@ class CrmLeadFields (models.Model):
                                  "this contact will be printed in this language. If not, it will be English.")
 
     
-    #метод, що призначає оперетора Call Center при створенні ліда
+    convertion_user = fields.Many2one(
+        string=u'Кем преобразовано',
+        comodel_name='res.users',
+    )
+    
+    # метод, що призначає оперетора Call Center при створенні ліда
     # @api.multi
     # def write(self,vals):
     #     super(CrmLeadFields,self).write(vals)
@@ -98,6 +103,7 @@ class CrmLeadFields (models.Model):
         values['action'] = 'exist' if self.partner_id else 'exist_or_create'
         leads = self.env['crm.lead'].browse(self.id)
         values.update({'lead_ids': leads.ids, 'user_ids': [self.user_id.id]})
+        self.update({'convertion_user':self.user_id.id})
         self._convert_opportunity(values)
 
         self._create_action_for_lead(use_default_deadline=True)
@@ -188,6 +194,25 @@ class CrmLeadFields (models.Model):
                                 help="This is the referrer of the link")
     utm_expid_id = fields.Many2one('utm.expid', 'Expid',
                                 help="This is the expid of the link")
+
+    @api.multi
+    def action_open_new_tab(self):
+        # for rec in self:
+        # my_lead_action = self.env['ir.actions.act_window'].search([('id', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.lead_action_name'))])
+        # my_oppor_action = self.env['ir.actions.act_window'].search([('id', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.oppor_action_name'))])
+
+        base_url = self.env['ir.config_parameter'].get_param('web.base.url')
+        if (self.type=="lead"):
+            record_url = base_url + "/web#id=" + str(self.id) + "&view_type=form&model=&&action="+str(self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.lead_action_name'))
+        else:
+            record_url = base_url + "/web#id=" + str(self.id) + "&view_type=form&model=&&action="+str(self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.oppor_action_name'))
+        client_action = {
+                'type': 'ir.actions.act_url',
+                'name': "ZZZ",
+                'target': 'new',
+                'url': record_url,
+                }
+        return client_action                                
 
 class LeadsAllocation(models.Model):
     _inherit=['crm.team']
