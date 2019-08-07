@@ -5,23 +5,31 @@ from odoo.exceptions import UserError
 class SaleOrderAutoInvoice (models.Model):
     _inherit="sale.order"
 
+    
+
+
     def action_confirm(self):
         super(SaleOrderAutoInvoice,self).action_confirm()
+        self.env.user.notify_info('My information message')
         payment = self.env['sale.advance.payment.inv'].create({'advance_payment_method': 'all'})
         payment.with_context(active_ids=self.id).create_invoices()        
         invoices = self.mapped('invoice_ids')
         for invoice in invoices:
-            invoice.description=self.x_studio_field_7NjeR
-            invoice.action_invoice_open()
+            invoice._compute_utm_from_origin()
+        # for invoice in invoices:
+            # invoice.description=self.x_studio_field_7NjeR
+            # invoice.action_invoice_open()
     
     def create_invoice_button(self):
         payment = self.env['sale.advance.payment.inv'].create({'advance_payment_method': 'all'})
         payment.with_context(active_ids=self.id).create_invoices()        
         invoices = self.mapped('invoice_ids')
         for invoice in invoices:
-            if (invoice.state == 'draft'):
-                invoice.description=self.x_studio_field_7NjeR
-                invoice.action_invoice_open()
+            invoice._compute_utm_from_origin()
+        # for invoice in invoices:
+        #     if (invoice.state == 'draft'):
+                # invoice.description=self.x_studio_field_7NjeR
+                # invoice.action_invoice_open()
 
 
 
@@ -99,3 +107,52 @@ class AccountInvoice (models.Model):
     description = fields.Text(
         string='Комментарий',
     )
+    # Calculated field 
+    amount_paid = fields.Float(
+        string=u'Сумма оплат',
+        compute='_compute_amount_paid',
+        store=True,
+    )
+
+    @api.depends('residual')
+    def _compute_amount_paid(self):
+        for rec in self:
+            rec.amount_paid = rec.amount_untaxed-rec.residual
+
+
+    # state_prepaid = fields.Selection([
+    #         ('draft','Черновик'),
+    #         ('open', 'Окрыт'),
+    #         ('prepaid','Предоплата'),
+    #         ('paid', 'Оплачен'),
+    #         ('cancel', 'Отменён'),
+    #     ], string='Состояние счета', readonly=True, default='draft',
+    #     compute='_compute_state_prepaid'
+    #     )
+    
+    state_prepaid = fields.Char(
+        string=u'Состояние счета', readonly=True,
+        compute='_compute_state_prepaid',
+        store=True,
+    )
+
+
+
+    def action_invoice_open(self):
+        super(AccountInvoice,self).action_invoice_open()
+        action = self.env.ref('account.action_account_invoice_payment').read()[0]   
+        return action
+
+    
+    @api.depends('residual','state','amount_paid')
+    def _compute_state_prepaid(self):
+        state_prepaid_dictionary={'draft':'Черновик','open': 'Окрыт', 'prepaid':'Предоплата','paid':'Оплачен','cancel':'Отменён'}
+
+        for rec in self:
+            rec.state_prepaid = state_prepaid_dictionary[rec.state]
+            if (rec.residual != rec.amount_total) and (rec.state=='open'):
+                rec.state_prepaid=state_prepaid_dictionary['prepaid']
+            elif (rec.residual == rec.amount_total) and (rec.state == 'open'):
+                rec.state_prepaid=state_prepaid_dictionary['open']
+            else:
+                pass

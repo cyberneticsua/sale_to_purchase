@@ -25,6 +25,7 @@
                                 <tree string="Purchase Order Lines" editable="bottom">
                                     <field name="product_id" required="True"/>
                                     <field name="name" invisible="True" />
+                                    <field name="product_info"/>
                                     <field name="partner_id" domain="[('supplier','=',True)]"/>
                                     <field name="date_planned"/>
                                     <field name="product_qty" required="True"/>

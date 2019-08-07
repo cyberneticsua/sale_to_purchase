@@ -1,11 +1,16 @@
 from odoo import models, fields, api
+import logging
 from odoo.exceptions import Warning
 from odoo.exceptions import UserError
 from datetime import date, datetime, timedelta
 from odoo.tools.safe_eval import safe_eval
 from random import randint, shuffle
+from odoo.exceptions import Warning
+from odoo.exceptions import UserError
+from odoo.exceptions import ValidationError
 import math
 import pytz
+_logger = logging.getLogger(__name__)
 
 @api.model
 def _lang_get(self):
@@ -39,7 +44,14 @@ class CrmLeadFields (models.Model):
     def create(self, vals):
         ff = super(CrmLeadFields,self).create(vals)
         if not ff.user_id:
-            my_team = self.env['crm.team'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_call_center_team'))])
+            ###25.12.2018
+            my_client_type = self.env['client.type'].search([('id','=',ff.client_type_id.id)])
+            if my_client_type.name == 'Себе домой (розничн.клиент)' or  my_client_type.name == 'Другое (указать в коммент.)':
+                my_team = self.env['crm.team'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_call_center_team'))])
+            else:
+                my_team = self.env['crm.team'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_sales_team'))])
+            ###вибір команди
+            # my_team = self.env['crm.team'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_call_center_team'))])
             self.env['crm.team'].custom_assign_leads_to_salesman(team_id=my_team.id,lead_id=ff.id)
             ff._create_action_for_lead(use_default_deadline=False)
 
@@ -68,9 +80,10 @@ class CrmLeadFields (models.Model):
             leads_to_allocate = leads_to_allocate.filtered(lambda lead: not lead.user_id)
         
         # Assignment of opportunities to manager
-        my_team = self.env['crm.team'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_sales_team'))])
-        
-        self.env['crm.team'].custom_assign_leads_to_salesman(team_id=my_team.id,lead_id=self.id)
+        # 25.12.2018 при конвертації ліда в опортуніті не присвоюємо тім   
+        # my_team = self.env['crm.team'].search([('name', '=', self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.my_base_sales_team'))])
+        # 
+        # self.env['crm.team'].custom_assign_leads_to_salesman(team_id=my_team.id,lead_id=self.id)
 
         # if user_ids:
         #     leads_to_allocate.allocate_salesman(user_ids, team_id=(vals.get('team_id')))
@@ -103,6 +116,30 @@ class CrmLeadFields (models.Model):
         values['action'] = 'exist' if self.partner_id else 'exist_or_create'
         leads = self.env['crm.lead'].browse(self.id)
         values.update({'lead_ids': leads.ids, 'user_ids': [self.user_id.id]})
+        
+        #Перевірка наявності телефону, імя, мови і типу клієнта
+        list_of_params = ""
+        if not(self.contact_name):
+            list_of_params+='имя '
+        
+        if not(self.phone) and not(self.mobile):
+            list_of_params+='телефон '
+        else:
+            values.update({'phone':self.phone})
+
+        if not(self.client_type_id):
+            list_of_params+='тип клиента '
+        
+        if not(self.client_language):
+            list_of_params+='язык клиента '
+        
+        if list_of_params:
+            error_message = "Нужно определить {}".format(list_of_params)
+            raise ValidationError(error_message)
+
+        _logger.info('My vals {}'.format(vals))
+        _logger.info('My values  {}'.format(values))
+        
         self.update({'convertion_user':self.user_id.id})
         self._convert_opportunity(values)
 
@@ -134,11 +171,19 @@ class CrmLeadFields (models.Model):
         else:
             date_deadline = datetime.now(pytz.timezone(self.user_id.tz or 'GMT'))
 
+        my_datetime= datetime.datetime.now()
         if date_deadline.weekday()==5:
-            date_deadline= date_deadline+ timedelta(days=2)
+            date_deadline = date_deadline + timedelta(days=2)
+            my_datetime = my_datetime + timedelta(days=2)
         if date_deadline.weekday()==6:
             date_deadline= date_deadline+ timedelta(days=1)
-        my_activity.write({'date_deadline':date_deadline.strftime('%Y-%m-%d')})
+            my_datetime = my_datetime + timedelta(days=1)
+        
+        # my_datetime= datetime.datetime.now()       
+        my_activity.write({
+                            'date_deadline':date_deadline.strftime('%Y-%m-%d'),
+                            'datetime_deadline':my_datetime.strftime('%Y-%m-%d %H:%M:%S')
+                        })
        
 
     def _create_partner(self, lead_id, action, partner_id):
@@ -194,6 +239,21 @@ class CrmLeadFields (models.Model):
                                 help="This is the referrer of the link")
     utm_expid_id = fields.Many2one('utm.expid', 'Expid',
                                 help="This is the expid of the link")
+    utm_term_id = fields.Many2one('utm.term', 'Term',
+                                help="This is the term of the link")
+    utm_content_id = fields.Many2one('utm.content', 'Content',
+                                help="This is the content of the link")
+    utm_position_id = fields.Many2one('utm.position', 'Position',
+                                help="This is the position of the link")
+    utm_matchtype_id = fields.Many2one('utm.matchtype', 'Matchtype',
+                                help="This is the matchtype of the link")
+    utm_network_id = fields.Many2one('utm.network', 'Network',
+                                help="This is the network of the link")
+    lead_furniture_type_from_mail=fields.Char(string="Интересующий тип мебели")
+    lead_quantity_from_mail=fields.Char(string="Желаемое количество посадочных мест")                                
+    lead_date_from_mail=fields.Char(string="Желаемая дата поставки")
+    lead_additional_from_mail = fields.Char(string="Комментарии Клиента")
+    sent_from_page = fields.Char(string="Отправлено со страницы")
 
     @api.multi
     def action_open_new_tab(self):

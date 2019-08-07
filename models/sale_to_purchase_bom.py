@@ -82,6 +82,8 @@ class PurchaseOrderBOMWizard(models.TransientModel):
                                                 'date_planned':i.date_planned,
                                                 #додавання посилання на sale order
                                                 'sale_order_line_id':data.id,
+                                                #25.12.2018 додавання комплектації товару
+                                                'product_info':i.product_info,
                                                 })
             pur_id.button_confirm()
     
@@ -174,3 +176,6 @@ class PurchaseOrderLineWizard(models.TransientModel):
     )
 
     date_planned=fields.Date(string='Дата готовности')
+
+    #25.12.2018
+    product_info=fields.Text(string='Комплектация')

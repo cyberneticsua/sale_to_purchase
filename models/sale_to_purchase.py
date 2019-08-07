@@ -14,7 +14,8 @@ class SaleOrderLine (models.Model):
             ('purchased', 'Заказано'),
             ('ready_for_delivery', 'Готово к отправке'),
             ('delivering', 'В дороге'),
-            ('done', 'Доставлено'),],
+            ('done', 'Доставлено'),
+            ('closed', 'Закрыто'),],
         string='Состояние',default='not_purchased')
     
     product_info = fields.Text(string="Комплектация")
@@ -47,7 +48,8 @@ class PurchaseOrderLine (models.Model):
             ('purchased', 'Заказано'),
             ('ready_for_delivery', 'Готово к отправке'),
             ('delivering', 'В дороге'),
-            ('done', 'Доставлено'),],
+            ('done', 'Доставлено'),
+            ('closed', 'Закрыто'),],
         string='Состояние',default='created')
     product_info = fields.Text(string="Комплектация")
 

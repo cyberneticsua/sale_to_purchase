@@ -6,3 +6,4 @@ from . import sale_order_auto_invoice
 from . import activities_list
 # from . import hr_expense_auto_accept
 from . import res_config_settings
+from . import mail_waldberg

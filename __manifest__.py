@@ -16,6 +16,7 @@
              'views/lead_modification.xml',
              'views/activities_list.xml',
              'data/defaultdata.xml',
+             'security/ir.model.access.csv'
              ],
     'images': [],
     'license': 'LGPL-3',

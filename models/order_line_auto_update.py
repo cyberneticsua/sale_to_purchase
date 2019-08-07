@@ -44,3 +44,30 @@ class PurchaseOrderLine (models.Model):
             if (all_lines):
                 sale_order=self.env['sale.order'].search([('id','=',sale_order_line.order_id.id)])
                 sale_order.sudo().write ({'sale_order_status_field':True})
+
+class InvoiceLeadName(models.Model):
+    _inherit = ['account.invoice']
+
+    lead_id = fields.Char(
+        string=u'Номер сделки',
+        compute='_compute_opportunity_id',
+        store=True
+    )
+
+    @api.depends('origin')
+    @api.multi
+    def _compute_opportunity_id(self):
+        for inv in self:
+            related_sale_order=self.env["sale.order"].search([('name','=',inv.origin)])
+            inv.lead_id= related_sale_order.opportunity_id.name
+
+    ###########15.04.2019################
+    # #Compute utm from origin field
+    # @api.multi
+    # def _compute_utm_from_origin(self):
+    #     for inv in self:
+    #         related_sale_order=self.env["sale.order"].search([('name','=',inv.origin)])
+    #         inv.source_id = related_sale_order.source_id
+    #         inv.campaign_id = related_sale_order.campaign_id
+    #         inv.medium_id = related_sale_order.medium_id
+    #         inv.

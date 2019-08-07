@@ -140,7 +140,7 @@ class ResConfigSettingsActivityActionName(models.TransientModel):
     def get_values(self):
         res = super(ResConfigSettingsActivityActionName, self).get_values()
         res.update(
-            oppor_action_name=self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.activity_action_id')
+            activity_action_id=self.env['ir.config_parameter'].sudo().get_param('sale_to_purchase.activity_action_id')
         )
         return res
 
